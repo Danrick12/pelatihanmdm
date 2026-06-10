@@ -1,0 +1,3 @@
+timestamp,operation,field,n_affected,pct_affected,description
+2026-06-10 14:59:31,NORMALIZE_NAME,NAMA_PERUSAHAAN,239,23.43,Upper case and PT/CV dots removal
+2026-06-10 14:59:31,NORMALIZE_NPWP,NPWP,119,11.67,Format to XX.XXX.XXX.X-XXX.XXX
