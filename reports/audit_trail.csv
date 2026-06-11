@@ -1,21 +1,21 @@
 dataset,timestamp,operation,field,n_affected,pct_affected,description
-OSS,2026-06-11 13:41:23,STANDARDIZE_NAME,NAMA_PERSEROAN,0,0.0,"Uppercase, rapikan spasi, normalisasi prefix PT/CV/Firma/Perum/UD"
-OSS,2026-06-11 13:41:23,STANDARDIZE_ADDRESS,ALAMAT_PERSEROAN,5500,100.0,"Title case, normalisasi singkatan (Jl., No., RT/RW, Kec., Kel.)"
-OSS,2026-06-11 13:41:23,STANDARDIZE_NIB,NIB,501,9.11,"Hanya digit, pad/trim ke 13 digit"
-OSS,2026-06-11 13:41:23,STANDARDIZE_NPWP,NPWP_PERSEROAN,0,0.0,Format ke XX.XXX.XXX.X-XXX.XXX (jika 15 digit)
-OSS,2026-06-11 13:41:23,FLAG_VALIDITY,NPWP_PERSEROAN,0,0.0,Format NPWP_PERSEROAN tidak sesuai XX.XXX.XXX.X-XXX.XXX - ditandai IS_NPWP_INVALID
-OSS,2026-06-11 13:41:23,STANDARDIZE_KODEPOS,KODE_POS_PERSEROAN,5500,100.0,"Pastikan 5 digit, selain itu dikosongkan"
-OSS,2026-06-11 13:41:23,FLAG_INCOMPLETE,NIB+NPWP_PERSEROAN+NAMA_PERSEROAN+STATUS_NIB,0,0.0,"Field wajib kosong - ditandai untuk review, tidak diisi paksa"
-OSS,2026-06-11 13:41:23,VALIDATE_REF,PERSEROAN_DAERAH_ID,0,0.0,Kode wilayah tidak ditemukan di 34 kode referensi PROVINSI
-OSS,2026-06-11 13:41:23,FLAG_TIMELINESS,TGL_PERUBAHAN_NIB,4512,82.04,IS_STALE = True jika TGL_PERUBAHAN_NIB > 1 tahun dari sekarang
-CEISA,2026-06-11 13:41:23,STANDARDIZE_NAME,NAMA_PERUSAHAAN,0,0.0,"Uppercase, rapikan spasi, normalisasi prefix PT/CV/Firma/Perum/UD"
-CEISA,2026-06-11 13:41:23,STANDARDIZE_ADDRESS,ALAMAT_PERUSAHAAN,5198,100.0,"Title case, normalisasi singkatan (Jl., No., RT/RW, Kec., Kel.)"
-CEISA,2026-06-11 13:41:23,STANDARDIZE_NIB,NIB,459,8.83,"Hanya digit, pad/trim ke 13 digit"
-CEISA,2026-06-11 13:41:23,STANDARDIZE_NPWP,NPWP,323,6.21,"Format ke XX.XXX.XXX.X-XXX.XXX (jika 15 digit); 975 masih tidak baku (anomali ""Inconsistent NPWP"" dipertahankan sesuai docs/02_business_rules.md §1)"
-CEISA,2026-06-11 13:41:23,FLAG_VALIDITY,NPWP,975,18.76,Format NPWP tidak sesuai XX.XXX.XXX.X-XXX.XXX - ditandai IS_NPWP_INVALID
-CEISA,2026-06-11 13:41:23,STANDARDIZE_KODEPOS,KODE_POS,5198,100.0,"Pastikan 5 digit, selain itu dikosongkan"
-CEISA,2026-06-11 13:41:23,STANDARDIZE_PHONE,NOMOR_TELPON,5198,100.0,Normalisasi ke format +62...
-CEISA,2026-06-11 13:41:23,DEDUP_SNAPSHOT,NIB,884,17.01,602 NIB punya >1 snapshot data mart - disisakan baris TGL_SYNC_OSS terbaru
-CEISA,2026-06-11 13:41:23,FLAG_INCOMPLETE,NIB+NPWP+NAMA_PERUSAHAAN+STATUS_NIB,0,0.0,"Field wajib kosong - ditandai untuk review, tidak diisi paksa"
-CEISA,2026-06-11 13:41:23,VALIDATE_REF,DAERAH_ID,0,0.0,Kode wilayah tidak ditemukan di 34 kode referensi PROVINSI
-CEISA,2026-06-11 13:41:23,FLAG_TIMELINESS,TGL_SYNC_OSS,2757,63.91,HIGH_SYNC_LAG = True jika TGL_SYNC_OSS > 30 hari dari sekarang
+OSS,2026-06-11 14:21:15,STANDARDIZE_NAME,NAMA_PERSEROAN,0,0.0,"Uppercase, rapikan spasi, normalisasi prefix PT/CV/Firma/Perum/UD"
+OSS,2026-06-11 14:21:15,STANDARDIZE_ADDRESS,ALAMAT_PERSEROAN,5500,100.0,"Title case, normalisasi singkatan (Jl., No., RT/RW, Kec., Kel.)"
+OSS,2026-06-11 14:21:15,STANDARDIZE_NIB,NIB,501,9.11,"Hanya digit, pad/trim ke 13 digit"
+OSS,2026-06-11 14:21:15,STANDARDIZE_NPWP,NPWP_PERSEROAN,0,0.0,Format ke XX.XXX.XXX.X-XXX.XXX (jika 15 digit)
+OSS,2026-06-11 14:21:15,FLAG_VALIDITY,NPWP_PERSEROAN,0,0.0,Format NPWP_PERSEROAN tidak sesuai XX.XXX.XXX.X-XXX.XXX - ditandai IS_NPWP_INVALID
+OSS,2026-06-11 14:21:15,STANDARDIZE_KODEPOS,KODE_POS_PERSEROAN,5500,100.0,"Pastikan 5 digit, selain itu dikosongkan"
+OSS,2026-06-11 14:21:15,FLAG_INCOMPLETE,NIB+NPWP_PERSEROAN+NAMA_PERSEROAN+STATUS_NIB,0,0.0,"Field wajib kosong - ditandai untuk review, tidak diisi paksa"
+OSS,2026-06-11 14:21:15,VALIDATE_REF,PERSEROAN_DAERAH_ID,0,0.0,Kode wilayah tidak ditemukan di 34 kode referensi PROVINSI
+OSS,2026-06-11 14:21:15,FLAG_TIMELINESS,TGL_PERUBAHAN_NIB,4512,82.04,IS_STALE = True jika TGL_PERUBAHAN_NIB > 1 tahun dari sekarang
+CEISA,2026-06-11 14:21:15,STANDARDIZE_NAME,NAMA_PERUSAHAAN,0,0.0,"Uppercase, rapikan spasi, normalisasi prefix PT/CV/Firma/Perum/UD"
+CEISA,2026-06-11 14:21:15,STANDARDIZE_ADDRESS,ALAMAT_PERUSAHAAN,5198,100.0,"Title case, normalisasi singkatan (Jl., No., RT/RW, Kec., Kel.)"
+CEISA,2026-06-11 14:21:15,STANDARDIZE_NIB,NIB,459,8.83,"Hanya digit, pad/trim ke 13 digit"
+CEISA,2026-06-11 14:21:16,STANDARDIZE_NPWP,NPWP,323,6.21,"Format ke XX.XXX.XXX.X-XXX.XXX (jika 15 digit); 975 masih tidak baku (anomali ""Inconsistent NPWP"" dipertahankan sesuai docs/02_business_rules.md §1)"
+CEISA,2026-06-11 14:21:16,FLAG_VALIDITY,NPWP,975,18.76,Format NPWP tidak sesuai XX.XXX.XXX.X-XXX.XXX - ditandai IS_NPWP_INVALID
+CEISA,2026-06-11 14:21:16,STANDARDIZE_KODEPOS,KODE_POS,5198,100.0,"Pastikan 5 digit, selain itu dikosongkan"
+CEISA,2026-06-11 14:21:16,STANDARDIZE_PHONE,NOMOR_TELPON,5198,100.0,Normalisasi ke format +62...
+CEISA,2026-06-11 14:21:16,DEDUP_SNAPSHOT,NIB,884,17.01,602 NIB punya >1 snapshot data mart - disisakan baris TGL_SYNC_OSS terbaru
+CEISA,2026-06-11 14:21:16,FLAG_INCOMPLETE,NIB+NPWP+NAMA_PERUSAHAAN+STATUS_NIB,0,0.0,"Field wajib kosong - ditandai untuk review, tidak diisi paksa"
+CEISA,2026-06-11 14:21:16,VALIDATE_REF,DAERAH_ID,0,0.0,Kode wilayah tidak ditemukan di 34 kode referensi PROVINSI
+CEISA,2026-06-11 14:21:16,FLAG_TIMELINESS,TGL_SYNC_OSS,2757,63.91,HIGH_SYNC_LAG = True jika TGL_SYNC_OSS > 30 hari dari sekarang
