@@ -1,14 +1,11 @@
 # ============================================================
-# CELL 1: INSTALL LIBRARY TAMBAHAN LAB 2
+# CELL 1: LIBRARY TAMBAHAN LAB 2
 # ============================================================
 
-!pip install fuzzywuzzy python-Levenshtein unidecode jellyfish -q
+# Note: Pastikan library berikut sudah terinstall di environment Anda:
+# pip install fuzzywuzzy python-Levenshtein unidecode jellyfish
 
-print('✅ Library tambahan berhasil diinstall:')
-print('   fuzzywuzzy         : fuzzy string matching')
-print('   python-Levenshtein : akselerasi fuzzywuzzy')
-print('   unidecode          : konversi karakter unicode ke ASCII')
-print('   jellyfish          : string similarity (Jaro-Winkler, Soundex)')
+print('✅ Library tambahan siap digunakan')
 
 # ============================================================
 # CELL 2: IMPORT LIBRARY
@@ -49,12 +46,9 @@ print('✅ Semua library berhasil diimport!')
 # CELL 3: LOAD DATASET DARI LAB 1
 # ============================================================
 
-# Jika dataset_wp_raw.csv sudah ada di Colab session (LAB 1 masih aktif)
-# langsung load. Jika session baru, upload ulang file CSV-nya.
-
 try:
     df_raw = pd.read_csv(
-        'dataset_wp_raw.csv',
+        'data/raw/ceisa_data.csv',
         dtype={
             'npwp': str,
             'nik': str,
@@ -64,8 +58,7 @@ try:
     )
     print(f'✅ Dataset berhasil dimuat dari file CSV')
 except FileNotFoundError:
-    print('❌ File tidak ditemukan. Jalankan ulang LAB 1 untuk membuat dataset,')
-    print('   atau upload file dataset_wp_raw.csv ke Colab.')
+    print('❌ File tidak ditemukan di data/raw/ceisa_data.csv')
     raise
 
 # Buat salinan kerja — JANGAN modifikasi df_raw langsung!
