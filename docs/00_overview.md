@@ -11,6 +11,18 @@ Mengacu pada `reference/PEDOMAN MINI PROJECT MDM 2026.pdf`, Kelompok 5 (DJBC) me
 
 Gaya pengerjaan & teknik mengikuti `reference/Data Profiling (1).ipynb` (referensi kelompok lain — Master Data Wajib Pajak), tapi datanya diganti OSS + CEISA dan disesuaikan aturan bisnis Kelompok 5.
 
+### Latar Belakang Bisnis
+
+DJBC mengambil **data master legalitas** (NIB, status, dll) dari OSS. Namun, update yang terjadi di OSS tidak serta-merta ter-propagate ke CEISA — ada jeda sinkronisasi yang membuat data CEISA berpotensi "ketinggalan" dari kondisi terkini di OSS.
+
+Project ini adalah **rekonsiliasi awal** untuk membentuk Golden Record (MDM) dari kondisi data saat ini. Implikasinya terhadap desain:
+
+- **OSS diperlakukan sebagai System of Record** untuk field legalitas (lihat survivorship rules di [`02_business_rules.md`](02_business_rules.md) §3) — karena OSS dianggap mencerminkan kondisi terkini, sementara data CEISA bisa lagging di belakangnya.
+- **Sync lag** (`TGL_SYNC_OSS` > 30 hari → `HIGH_SYNC_LAG`) dan **konflik status** (`STATUS_NIB` OSS ≠ CEISA → `IS_OUT_OF_SYNC`, lihat [`02_business_rules.md`](02_business_rules.md) §1 & Tahap 4) adalah indikator langsung dari skenario ini: kemungkinan ada perubahan di OSS yang belum tercapture di CEISA/MDM DJBC.
+- Tabel CEISA yang diterima BC bersifat **data mart**, bukan tabel master normal — `NIB` yang sama bisa punya `NAMA_PERUSAHAAN`/`ALAMAT_PERUSAHAAN` berbeda di baris berbeda (snapshot historis). MDM harus mengambil snapshot **terbaru** (`TGL_SYNC_OSS` paling baru) — lihat dimensi "Unik" di [`02_business_rules.md`](02_business_rules.md) §1.
+
+> **Di luar ruang lingkup project ini**: setelah Golden Record terbentuk, idealnya ada mekanisme **auto-update CEISA via trigger** dari OSS agar sync lag ke depan minim. Ini adalah *next step* pengembangan sistem MDM DJBC, di luar Tahap 1-6 PEDOMAN.
+
 ## 2. Dokumen Pendukung
 
 | Dokumen | Isi |

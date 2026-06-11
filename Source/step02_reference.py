@@ -50,7 +50,7 @@ KPPBC_LIST = [
     {'kode': '080100', 'nama': 'KPPBC TMP Ngurah Rai',                'wilayah': '51'},
     {'kode': '100300', 'nama': 'KPPBC Balikpapan',                    'wilayah': '64'},
     {'kode': '110100', 'nama': 'KPPBC Makassar',                      'wilayah': '73'},
-    {'kode': '120300', 'nama': 'KPPBC Sorong',                        'wilayah': '92'},
+    {'kode': '120300', 'nama': 'KPPBC Sorong',                        'wilayah': '91'},
     {'kode': '040400', 'nama': 'KPPBC Tipe Madya Pabean A Jakarta',   'wilayah': '31'},
     {'kode': '060300', 'nama': 'KPPBC Tipe Madya Cukai Kudus',        'wilayah': '33'},
     {'kode': '071300', 'nama': 'KPPBC Pasuruan',                      'wilayah': '35'},

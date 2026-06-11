@@ -1,8 +1,14 @@
 import pandas as pd
 import numpy as np
 import re
-from unidecode import unidecode
+import os
 from datetime import datetime
+
+try:
+    from unidecode import unidecode
+except ImportError:
+    def unidecode(text):
+        return text
 
 class AuditTrail:
     def __init__(self, dataset_name, total_records):

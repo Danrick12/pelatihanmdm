@@ -49,3 +49,8 @@ def generate_date_random(start_year=2020, end_year=2025):
     days_between_dates = time_between_dates.days
     random_days = random.randrange(days_between_dates)
     return (start_date + timedelta(days=random_days)).strftime('%Y-%m-%d')
+
+def generate_date_recent(max_days_ago=90):
+    """Generate tanggal acak dalam N hari terakhir dari hari ini (format YYYY-MM-DD)"""
+    days_ago = random.randint(0, max_days_ago)
+    return (datetime.now() - timedelta(days=days_ago)).strftime('%Y-%m-%d')

@@ -4,7 +4,7 @@ Skema berikut diadaptasi dari simulasi sebelumnya (`archive/df_oss_nib.csv`, `ar
 
 ## 1. Skema OSS (Online Single Submission — data legalitas/registrasi NIB)
 
-19 kolom. OSS adalah sumber **legalitas resmi** perusahaan (apa yang terdaftar saat pengurusan izin usaha).
+16 kolom. OSS adalah sumber **legalitas resmi** perusahaan (apa yang terdaftar saat pengurusan izin usaha).
 
 | # | Kolom | Tipe | Deskripsi | Contoh | Wajib? |
 |---|---|---|---|---|---|
@@ -24,13 +24,10 @@ Skema berikut diadaptasi dari simulasi sebelumnya (`archive/df_oss_nib.csv`, `ar
 | 14 | `JENIS_API` | string (enum) | Jenis Angka Pengenal Importir: `API-U`, `API-P`, kosong jika `FLAG_IMPOR=N` | `API-U` | Kondisional |
 | 15 | `TGL_PERUBAHAN_NIB` | date | Tanggal perubahan/update NIB terakhir di OSS | `2025-10-04` | Wajib |
 | 16 | `STATUS_NIB` | string (enum) | Status NIB versi OSS: `AKTIF`, `DIBEKUKAN`, `DICABUT` | `AKTIF` | Wajib |
-| 17 | `FLAG_MITA` | string (Y/N) | Status fasilitas Mitra Utama Kepabeanan | `Y` | Opsional |
-| 18 | `FLAG_AEO` | string (Y/N) | Status Authorized Economic Operator | `N` | Opsional |
-| 19 | `KODE_KANTOR` | string | Kode Kantor Bea Cukai tempat terdaftar | `010100` | Wajib |
 
 ## 2. Skema CEISA (Customs-Excise Information System and Automation — data kepabeanan)
 
-15 kolom. CEISA adalah sumber **operasional kepabeanan** (apa yang dipakai saat transaksi impor/ekspor).
+16 kolom. CEISA adalah sumber **operasional kepabeanan** (apa yang dipakai saat transaksi impor/ekspor).
 
 | # | Kolom | Tipe | Deskripsi | Contoh | Wajib? |
 |---|---|---|---|---|---|
@@ -44,11 +41,12 @@ Skema berikut diadaptasi dari simulasi sebelumnya (`archive/df_oss_nib.csv`, `ar
 | 8 | `KODE_POS` | string (5 digit) | Kode pos versi CEISA | `96001` | Opsional |
 | 9 | `NOMOR_TELPON` | string | Nomor telepon perusahaan (tidak ada di OSS) | `+62-46-100-7923` | Opsional |
 | 10 | `KATEGORI` | string (enum) | Kategori pelaku usaha: `IMPORTIR`, `EKSPORTIR`, `KEDUA-DUANYA` | `KEDUA-DUANYA` | Wajib |
-| 11 | `NIPER` | string | Nomor Induk Perusahaan (re)Ekspor — fasilitas khusus ekspor, hanya untuk eksportir tertentu | `4803163678` | Kondisional |
+| 11 | `NIPER` | string | Nomor Induk Perusahaan (re)Ekspor — fasilitas khusus ekspor, hanya untuk eksportir tertentu | `4803163678` | Kondisional | 
 | 12 | `NOMOR_API` | string | Nomor Angka Pengenal Importir (versi CEISA) | `1752481353` | Kondisional |
 | 13 | `TGL_TERBIT_NIB` | date | Tanggal NIB terbit/terdaftar di CEISA | `2023-07-23` | Wajib |
 | 14 | `STATUS_NIB` | string (enum) | Status NIB versi CEISA: `AKTIF`, `DIBEKUKAN`, `DICABUT` — **bisa berbeda dari OSS** | `AKTIF` | Wajib |
 | 15 | `KODE_KANTOR` | string | Kode Kantor Bea Cukai pelayanan terakhir | `010100` | Wajib |
+| 16 | `TGL_SYNC_OSS` | date | Tanggal terakhir data CEISA disinkronkan dari OSS — dipakai untuk deteksi *sync lag* & menentukan snapshot terbaru | `2026-05-12` | Wajib |
 
 ## 3. Tabel Pemetaan — Kolom yang Sama Secara Konsep (beda nama/format)
 
@@ -63,15 +61,16 @@ Skema berikut diadaptasi dari simulasi sebelumnya (`archive/df_oss_nib.csv`, `ar
 | Kode pos | `KODE_POS_PERSEROAN` | `KODE_POS` | Idealnya sama |
 | Status NIB | `STATUS_NIB` | `STATUS_NIB` | **Berpotensi konflik** — sumber update beda waktu |
 | Tanggal terkait NIB | `TGL_PERUBAHAN_NIB` | `TGL_TERBIT_NIB` | Beda makna: tanggal *perubahan terakhir* vs tanggal *terbit* |
-| Kantor Terdaftar | `KODE_KANTOR` | `KODE_KANTOR` | Referensi KPPBC |
 
 ## 4. Kolom Unik per Sumber
 
 **Hanya ada di OSS** (legalitas & fasilitas kepabeanan dari sisi perizinan):
-`NAMA_SINGKATAN`, `JENIS_PERSEROAN`, `STATUS_BADAN_HUKUM`, `STATUS_PERSEROAN`, `FLAG_IMPOR`, `FLAG_EKSPOR`, `JENIS_API`, `FLAG_MITA`, `FLAG_AEO`
+`NAMA_SINGKATAN`, `JENIS_PERSEROAN`, `STATUS_BADAN_HUKUM`, `STATUS_PERSEROAN`, `FLAG_IMPOR`, `FLAG_EKSPOR`, `JENIS_API`
 
 **Hanya ada di CEISA** (operasional kepabeanan):
-`ID_PERUSAHAAN`, `NOMOR_TELPON`, `KATEGORI`, `NIPER`, `NOMOR_API`
+`ID_PERUSAHAAN`, `NOMOR_TELPON`, `KATEGORI`, `NIPER`, `NOMOR_API`, `KODE_KANTOR`, `TGL_SYNC_OSS`
+
+> **Catatan — duplikasi `NIB` di CEISA**: CEISA bersifat *data mart*, bukan tabel master. Satu `NIB` bisa muncul di >1 baris dengan `NAMA_PERUSAHAAN`/`ALAMAT_PERUSAHAAN` berbeda (snapshot pada waktu berbeda). Baris yang valid adalah yang `TGL_SYNC_OSS`-nya paling baru — lihat dimensi "Unik" di [`02_business_rules.md`](02_business_rules.md).
 
 ## 5. Preview Skema Target — Golden Record
 
@@ -80,7 +79,7 @@ Golden Record menggabungkan kedua sumber per `NIB`, dengan field identitas legal
 | Field Golden Record | Sumber Diutamakan |
 |---|---|
 | `NIB` | Matching key (sama di kedua sumber) |
-| `NPWP` | OSS (`NPWP_PERSEROAN`) |
+| `NPWP` | OSS |
 | `NAMA_PERUSAHAAN` | OSS (`NAMA_PERSEROAN`) |
 | `NAMA_SINGKATAN` | OSS |
 | `JENIS_PERSEROAN`, `STATUS_BADAN_HUKUM`, `STATUS_PERSEROAN` | OSS |
@@ -88,9 +87,9 @@ Golden Record menggabungkan kedua sumber per `NIB`, dengan field identitas legal
 | `KODE_KANTOR` | CEISA (Kantor pelayanan aktif) |
 | `NOMOR_TELPON` | CEISA (tidak ada di OSS) |
 | `KATEGORI`, `NIPER`, `NOMOR_API` | CEISA |
-| `FLAG_IMPOR`, `FLAG_EKSPOR` | CEISA (data operasional terkini) |
-| `FLAG_MITA`, `FLAG_AEO` | OSS (tidak ada di CEISA) |
-| `STATUS_NIB` | Resolusi konflik tanggal terbaru (lihat business rules) |
+| `FLAG_IMPOR`, `FLAG_EKSPOR` | OSS |
+| `STATUS_NIB` | ikut OSS |
+| `TGL_SYNC_OSS` | CEISA (metadata sync, dasar cek *timeliness* & resolusi snapshot) |
 | `SOURCE` | Penanda asal record: `OSS_CEISA` (matched), `OSS_ONLY`, `CEISA_ONLY` |
 
 Setiap keputusan sumber per field dicatat di `provenance_log.csv` (Tahap 4).

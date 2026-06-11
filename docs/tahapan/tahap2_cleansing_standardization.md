@@ -20,7 +20,7 @@
 ## Output
 
 - `data/processed/oss_cleaned.csv`
-- `data/processed/ceisa_cleaned.csv`
+- `data/processed/ceisa_cleaned.csv` (1 baris per `NIB` — sudah di-dedup dari snapshot data mart, ambil `TGL_SYNC_OSS` terbaru)
 - `data/processed/dataset_clean.csv` (gabungan/union OSS+CEISA dengan kolom `SOURCE`, untuk deliverable PEDOMAN)
 - `reports/audit_trail.csv` (gabungan log OSS + CEISA)
 
@@ -36,15 +36,18 @@ Dijalankan **per dataset** (OSS dan CEISA), masing-masing punya `AuditTrail` sen
    - `NPWP_PERSEROAN` / `NPWP`: format ke baku `XX.XXX.XXX.X-XXX.XXX`
    - `KODE_POS` / `KODE_POS_PERSEROAN`: 5 digit
    - `NOMOR_TELPON` (CEISA): normalisasi ke format `+62...`
-5. **Penanganan missing value** sesuai mandatory fields di [`../02_business_rules.md`](../02_business_rules.md) §3:
-   - Field wajib kosong → flag sebagai data bermasalah (tidak diisi paksa, dicatat di audit trail)
-   - Field opsional kosong (`NAMA_SINGKATAN`, `KODE_POS`, `NOMOR_TELPON`, `NIPER`/`NOMOR_API`) → biarkan null dengan justifikasi (memang tidak relevan untuk perusahaan tsb)
-6. **Validasi referensial**: cek `PERSEROAN_DAERAH_ID` (OSS) dan `DAERAH_ID` (CEISA) terhadap tabel kode wilayah referensi; flag jika kode tidak dikenal
-7. **Quality gate**: pemeriksaan otomatis sebelum export — pastikan tidak ada NIB invalid format, NPWP invalid format lolos tanpa flag
-8. Export `oss_cleaned.csv`, `ceisa_cleaned.csv`, gabungkan jadi `dataset_clean.csv`, dan simpan `audit_trail.csv`
-9. **Perbandingan DQ score before vs after** (bandingkan dengan baseline Tahap 1)
+5. **CEISA Data Mart Dedup**: per `NIB`, jika ada >1 baris (snapshot berbeda — lihat dimensi "Unik" di [`../02_business_rules.md`](../02_business_rules.md) §1), urutkan berdasarkan `TGL_SYNC_OSS` dan ambil baris terbaru saja. Baris yang dibuang dicatat di audit trail (operation: `DEDUP_SNAPSHOT`, jumlah baris terbuang per `NIB`). Hasilnya: `ceisa_cleaned.csv` punya 1 baris per `NIB`.
+6. **Penanganan missing value** sesuai mandatory fields di [`../02_business_rules.md`](../02_business_rules.md) §1 (dimensi Kelengkapan):
+   - Field wajib (`NIB`, `NPWP`/`NPWP_PERSEROAN`, `NAMA_PERSEROAN`/`NAMA_PERUSAHAAN`, `STATUS_NIB`) kosong → flag sebagai data bermasalah (tidak diisi paksa, dicatat di audit trail)
+   - Field opsional kosong (`NAMA_SINGKATAN`, `KELURAHAN`/`KELURAHAN_PERSEROAN`, `KODE_POS`/`KODE_POS_PERSEROAN`, `NOMOR_TELPON`, `NIPER`/`NOMOR_API`) → biarkan null dengan justifikasi (memang tidak relevan untuk perusahaan tsb)
+7. **Validasi referensial**: cek `PERSEROAN_DAERAH_ID` (OSS) dan `DAERAH_ID` (CEISA) terhadap tabel kode wilayah referensi; flag jika kode tidak dikenal
+8. **Quality gate**: pemeriksaan otomatis sebelum export — pastikan tidak ada NIB invalid format, NPWP invalid format lolos tanpa flag
+9. Export `oss_cleaned.csv`, `ceisa_cleaned.csv` (CEISA: 1 baris per `NIB` setelah dedup), gabungkan jadi `dataset_clean.csv`, dan simpan `audit_trail.csv`
+10. **Perbandingan DQ score before vs after** (bandingkan dengan baseline Tahap 1)
 
-> Cell "Deteksi & Penanganan Outlier (IQR/Winsorizing)" di referensi **kemungkinan tidak relevan** (data kita minim kolom numerik kontinu) — diganti/diskip dengan cek konsistensi flag (`FLAG_IMPOR` vs `JENIS_API`, `FLAG_EKSPOR` vs `NIPER`/`KATEGORI`) yang sudah didefinisikan sebagai anomali di business rules §4.
+> Cell "Deteksi & Penanganan Outlier (IQR/Winsorizing)" di referensi **kemungkinan tidak relevan** (data kita minim kolom numerik kontinu) — diganti/diskip dengan cek konsistensi flag (`FLAG_IMPOR` vs `JENIS_API`, `FLAG_EKSPOR` vs `NIPER`/`KATEGORI`), yaitu anomali "Logical Conflict" yang terdaftar di tabel anomali [`tahap0_simulation_faker.md`](tahap0_simulation_faker.md) §4.
+>
+> **Catatan gap terpisah**: "Logical Conflict" — bersama "NIB Typo" dan "Orphan Records" — adalah 3 anomali di tabel `tahap0_simulation_faker.md` (10 item) yang belum punya entri eksplisit di daftar 7 anomali `02_business_rules.md` §5. Penyelarasan (apakah §5 perlu diekspansi jadi 10 item) dibahas terpisah, belum diputuskan.
 
 ## Referensi dari `Data Profiling (1).ipynb`
 
@@ -61,12 +64,14 @@ Dijalankan **per dataset** (OSS dan CEISA), masing-masing punya `AuditTrail` sen
 | 36 | Quality Gate | Pola dipakai |
 | 37 | Export Clean Dataset & Audit Trail | Pola dipakai |
 | 38 | Perbandingan DQ Score Before vs After | Pola dipakai |
+| - | **CEISA Data Mart Dedup** | **Belum ada di referensi — logic baru** (ambil baris `TGL_SYNC_OSS` terbaru per `NIB`) |
 
 ## Checklist Aktivitas Minimal (PEDOMAN)
 
 - [ ] Standardisasi nama (OSS & CEISA)
 - [ ] Standardisasi alamat (OSS & CEISA)
 - [ ] Standardisasi identifier — NIB, NPWP, kode pos, telepon
+- [ ] CEISA data mart dedup (1 baris per `NIB`, ambil `TGL_SYNC_OSS` terbaru)
 - [ ] Penanganan missing value
 - [ ] Validasi referensial (kode wilayah)
 - [ ] Audit trail tercatat & diekspor

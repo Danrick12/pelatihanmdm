@@ -1,52 +1,52 @@
-# Business Rules — Matching, Survivorship, Validity & Anomali (DJBC)
+# Business Rules — Matching, Survivorship, Validity & DMBOK Dimensions (DJBC)
 
-Dokumen ini adalah spec final untuk implementasi MDM Kelompok 5. Mengacu pada [`01_data_dictionary.md`](../01_data_dictionary.md).
+Dokumen ini adalah spesifikasi final yang mengintegrasikan standar **DMBOK** yang telah disederhanakan untuk fokus Mini Project Kelompok 5.
 
-## 1. Matching Strategy (Tahap 3)
+## 1. Dimensi Kualitas Data (4 Core Dimensions)
 
-Matching dilakukan antar **OSS** dan **CEISA** secara berjenjang:
+Setiap aturan pada sistem profiling dipetakan ke 4 dimensi utama:
 
-| Prioritas | Metode | Field Kunci | Kondisi |
+| Dimensi | Implementasi pada Proyek DJBC | Parameter Ukur |
+|---|---|---|
+| **Kelengkapan** | Memastikan semua informasi identitas wajib tersedia. | Null check pada `NIB`, `NPWP`, `NAMA`, `STATUS_NIB` — dijamin 100% (validasi wajib di input/generator). Field opsional (`KELURAHAN`, `KODE_POS`, `NOMOR_TELPON`, dll) tetap bisa kosong. |
+| **Validitas** | Memastikan data sesuai dengan sintaks/format resmi. | Regex check `NIB` (13 digit) & `NPWP` (format `XX.XXX.XXX.X-XXX.XXX`). Anomali NPWP kotor (tanpa separator) di CEISA tetap dipertahankan sebagai kasus uji (lihat Section 5 #2). |
+| **Unik** | Memastikan setiap entitas hanya terwakili satu kali. | Duplicate check pada kolom `NIB` internal sistem. CEISA bersifat *data mart* — `NIB` yang sama bisa muncul di >1 baris dengan `NAMA_PERUSAHAAN`/`ALAMAT_PERUSAHAAN` berbeda (snapshot waktu berbeda). Resolusi: ambil baris dengan `TGL_SYNC_OSS` terbaru sebelum proses matching (lihat Section 5 anomali "Data Mart Snapshot Duplicate"). |
+| **Ketepatan Waktu** | Memastikan data tetap relevan dan tersinkronisasi. | *OSS Staleness*: `TGL_PERUBAHAN_NIB` > 1 tahun dari sekarang → `IS_STALE = True`. *Sync Lag*: `TGL_SYNC_OSS` (CEISA) > 30 hari dari sekarang → `HIGH_SYNC_LAG = True` (SLA sync CEISA-OSS bulanan). |
+
+> **Catatan konteks bisnis**: `HIGH_SYNC_LAG` merepresentasikan risiko bahwa perubahan di OSS (system of record) belum ter-propagate ke CEISA — lihat latar belakang bisnis di [`00_overview.md`](00_overview.md).
+
+## 2. Matching Strategy (Tahap 3)
+
+| Prioritas | Metode | Confidence Score | Keterangan |
 |---|---|---|---|
-| 1 | Exact Match | `NIB` (13 digit) | Join utama. NIB harus dinormalisasi (hanya angka). |
-| 2 | Exact Match | `NPWP` (15 digit) | Jika NIB tidak match (kemungkinan typo NIB). |
-| 3 | Fuzzy Match | `NAMA` + `ALAMAT` | Jika identitas angka gagal. Threshold similarity ≥ 85. |
+| 1 | Exact Match `NIB` | 100% | Identitas utama resmi. |
+| 2 | Exact Match `NPWP` | 95% | Digunakan jika NIB typo namun NPWP sama. |
+| 3 | Fuzzy Match `NAMA` + `ALAMAT` | 85% | Threshold similarity ≥ 85. |
 
-## 2. Survivorship Rules (Tahap 4)
+## 3. Survivorship & Business Logic (Tahap 4)
 
-Menentukan data mana yang masuk ke **Golden Record** jika terjadi perbedaan antar sistem.
+### A. Aturan Pemenang (Survivorship)
+- **Legalitas & Status:** OSS Menang (sebagai *System of Record*). 
+- **Operasional:** CEISA Menang (termasuk `KODE_KANTOR` dan `NOMOR_TELPON`).
 
-| Kelompok | Field | Pemenang | Alasan Bisnis |
-|---|---|---|---|
-| **Legalitas** | `NAMA`, `NPWP`, `ALAMAT`, `JENIS_PERSEROAN`, `STATUS_WP` | **OSS** | OSS adalah otoritas pendaftaran badan usaha nasional. |
-| **Status NIB** | `STATUS_NIB` | **OSS** | OSS adalah *system of record* NIB. Perbedaan di CEISA dianggap *stale data*. |
-| **Operasional** | `KATEGORI`, `NIPER`, `NOMOR_API`, `KODE_KANTOR` | **CEISA** | CEISA merekam aktivitas pelayanan dan kategori terkini di lapangan. |
-| **Fasilitas** | `FLAG_MITA`, `FLAG_AEO`, `FLAG_UMK` | **OSS** | Fasilitas ini diterbitkan di level profil pusat (OSS). |
-| **Kontak** | `NOMOR_TELPON` | **CEISA** | OSS sering tidak memiliki data kontak operasional. |
+### B. Aturan Ketepatan Waktu (Timeliness Detail)
+- **Data Staleness:** Jika `TGL_PERUBAHAN` > 1 tahun dari sekarang, record ditandai `IS_STALE = True`.
+- **Sync Lag:** Jika selisih tanggal update OSS dan CEISA > 30 hari, ditandai sebagai `HIGH_SYNC_LAG`.
 
-## 3. Validity Rules (Tahap 1, 2, 5)
+## 4. Validity Rules (Tahap 1, 2, 5)
 
-Standar kualitas yang harus dipenuhi:
-- **NIB**: Wajib 13 digit numerik.
-- **NPWP**: Wajib format `XX.XXX.XXX.X-XXX.XXX`.
-- **Status NIB**: Harus salah satu dari `{AKTIF, DIBEKUKAN, DICABUT}`.
-- **Flag**: Harus `{Y, N}`.
-- **Kode Kantor**: Harus ada di `KPPBC_LIST` (6 digit).
+- **NIB:** Wajib 13 digit numerik.
+- **NPWP:** Wajib format `XX.XXX.XXX.X-XXX.XXX`.
 
-## 4. Anomali Bisnis yang Disimulasikan (Tahap 0)
+## 5. Anomali Bisnis yang Disimulasikan (Tahap 0)
 
-Script generator (`03.1generator.py`) wajib menyuntikkan 7 jenis anomali ini:
-
-1. **Inkonsistensi NPWP**: CEISA mengirim NPWP tanpa titik/strip (kotor), OSS bersih.
-2. **Fuzzy Name**: Perbedaan penulisan PT (depan vs belakang) atau typo ringan di CEISA.
-3. **NIB Typo**: NIB di CEISA salah 1 digit, memaksa sistem menggunakan matching NPWP.
-4. **CEISA Out-of-Sync**: `STATUS_NIB` OSS = 'DICABUT', tapi CEISA masih 'AKTIF'.
-5. **Logic Violation**: `NIPER` terisi (perusahaan ekspor) tapi `FLAG_EKSPOR` = 'N'.
-6. **Orphan Records**: Data yang hanya ada di OSS (belum transaksi) atau hanya di CEISA (data lama).
-7. **Missing Contacts**: Kolom telepon atau email kosong di salah satu sistem.
-
-## 5. Konflik Status & "Out-of-Sync" Indicator
-Jika `STATUS_NIB` di OSS dan CEISA berbeda, Golden Record akan mengambil nilai **OSS**, namun field **`IS_OUT_OF_SYNC`** akan diset menjadi `True`. Ini adalah *insight* penting bagi DJBC untuk melakukan rekonsiliasi sistem.
+1. **Stale Data:** Tanggal perubahan NIB sangat lama (mis: 2015).
+2. **Inconsistent NPWP:** CEISA mengirim NPWP tanpa titik/strip.
+3. **Fuzzy Identity:** Nama mirip tapi NIB beda sedikit.
+4. **Sync Conflict:** Status di OSS 'DICABUT' tapi di CEISA 'AKTIF'.
+5. **Missing Optional Field:** Field opsional (`KELURAHAN`, `KODE_POS`, `NOMOR_TELPON`, dll) kosong — field wajib (`NIB`, `NPWP`, `NAMA`, `STATUS_NIB`) selalu terisi.
+6. **Duplicate Entry:** Satu perusahaan muncul 2 kali di sistem yang sama.
+7. **Data Mart Snapshot Duplicate:** `NIB` yang sama muncul di >1 baris CEISA dengan `NAMA_PERUSAHAAN`/`ALAMAT_PERUSAHAAN` dan `TGL_SYNC_OSS` berbeda (representasi snapshot historis data mart).
 
 ---
-**Status:** *Final Specification for Kelompok 5*
+**Status:** *Final 4-Dimension DMBOK Specification*

@@ -1,5 +1,5 @@
 timestamp,operation,field,n_affected,pct_affected,description
-2026-06-10 15:08:32,CLEAN_NAME,NAMA_PERUSAHAAN,1553,32.35,Normalized casing and legal prefixes
-2026-06-10 15:08:32,CLEAN_NPWP,NPWP,4800,100.0,Standardized format XX.XXX.XXX.X-XXX.XXX
-2026-06-10 15:08:32,CLEAN_NAME,NAMA_PERUSAHAAN,1531,31.9,Normalized casing and legal prefixes
-2026-06-10 15:08:32,CLEAN_NPWP,NPWP,4800,100.0,Standardized format XX.XXX.XXX.X-XXX.XXX
+2026-06-10 20:25:07,CLEAN_NAME,NAMA_PERUSAHAAN,1553,32.35,Normalized casing and legal prefixes
+2026-06-10 20:25:07,CLEAN_NPWP,NPWP,4800,100.0,Standardized format XX.XXX.XXX.X-XXX.XXX
+2026-06-10 20:25:07,CLEAN_NAME,NAMA_PERUSAHAAN,1531,31.9,Normalized casing and legal prefixes
+2026-06-10 20:25:07,CLEAN_NPWP,NPWP,4800,100.0,Standardized format XX.XXX.XXX.X-XXX.XXX
