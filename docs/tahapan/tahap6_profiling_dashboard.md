@@ -1,6 +1,6 @@
 # Tahap 6 — YData Profiling Dashboard
 
-**Bobot penilaian**: 10% | **Status**: ⬜ Belum dikerjakan
+**Bobot penilaian**: 10% | **Status**: ✅ Selesai
 
 ## Tujuan (sesuai PEDOMAN)
 
@@ -32,6 +32,6 @@ Tidak ada cell yang langsung sesuai — notebook referensi menggunakan laporan H
 
 ## Checklist Aktivitas Minimal (PEDOMAN)
 
-- [ ] `profiling_after.html` ter-generate dari golden record
-- [ ] Perbandingan before vs after didokumentasikan
-- [ ] Insight bisnis & rekomendasi data governance ditulis (bonus penilaian)
+- [x] `profiling_after.html` ter-generate dari golden record
+- [x] Perbandingan before vs after didokumentasikan
+- [x] Insight bisnis & rekomendasi data governance ditulis (bonus penilaian)

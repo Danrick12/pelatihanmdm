@@ -1,6 +1,6 @@
 # Tahap 1 — Data Profiling
 
-**Bobot penilaian**: 15% | **Status**: ⬜ Belum dikerjakan
+**Bobot penilaian**: 15% | **Status**: ✅ Selesai
 
 ## Tujuan (sesuai PEDOMAN)
 
@@ -55,10 +55,10 @@ Dilakukan **untuk OSS dan CEISA secara terpisah** (dua dataset, dua skema berbed
 
 ## Checklist Aktivitas Minimal (PEDOMAN)
 
-- [ ] Dataset overview (OSS & CEISA)
-- [ ] Statistik deskriptif (OSS & CEISA)
-- [ ] Missing value analysis (OSS & CEISA)
-- [ ] Duplicate analysis (OSS & CEISA)
-- [ ] Format validation (OSS & CEISA)
-- [ ] Baseline Data Quality Score (OSS & CEISA)
-- [ ] `profiling_before.html` ter-generate
+- [x] Dataset overview (OSS & CEISA)
+- [x] Statistik deskriptif (OSS & CEISA)
+- [x] Missing value analysis (OSS & CEISA)
+- [x] Duplicate analysis (OSS & CEISA)
+- [x] Format validation (OSS & CEISA)
+- [x] Baseline Data Quality Score (OSS & CEISA)
+- [x] `profiling_before.html` ter-generate
