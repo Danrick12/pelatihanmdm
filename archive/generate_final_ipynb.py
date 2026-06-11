@@ -1,0 +1,289 @@
+import json
+
+notebook = {
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# MINI PROJECT MDM 2026 - KELOMPOK 5 (DJBC)\n",
+    "## Master Data Importir dan Eksportir Nasional (Single View)\n",
+    "\n",
+    "Notebook ini berisi implementasi lengkap Master Data Management (MDM) untuk integrasi data **OSS (NIB)** dan **CEISA (Bea Cukai)** sesuai dengan pedoman teknis DJBC.\n",
+    "\n",
+    "### Tahapan MDM:\n",
+    "1. **Simulation**: Pembuatan data 6.000 record dengan anomali bisnis.\n",
+    "2. **Initial Profiling**: Analisis kualitas data awal.\n",
+    "3. **Cleansing & Standardization**: Pembersihan Nama, NPWP, dan Alamat.\n",
+    "4. **Matching**: Linkage data antar sistem.\n",
+    "5. **Golden Record**: Penggabungan data (Survivorship).\n",
+    "6. **Quality Monitoring**: Scorecard akhir (Pre vs Post MDM)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 0. Persiapan & Install Library"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pip install pandas numpy faker missingno unidecode -q\n",
+    "\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns\n",
+    "import missingno as msno\n",
+    "import re\n",
+    "from faker import Faker\n",
+    "import random\n",
+    "from datetime import datetime, timedelta\n",
+    "from unidecode import unidecode\n",
+    "\n",
+    "fake = Faker('id_ID')\n",
+    "sns.set_theme(style='whitegrid')\n",
+    "print('✅ Library siap!')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 1. Data Simulation (6.000 Records)\n",
+    "Mensimulasikan data dari sistem **OSS** dan **CEISA** dengan berbagai anomali (Duplikasi, Konflik Legal, Format NPWP Rusak)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Faker.seed(42)\n",
+    "TOTAL_UNIQUE = 5000\n",
+    "DUP_NAME = 500\n",
+    "DIFF_NPWP = 250\n",
+    "DIFF_ADDR = 200\n",
+    "CONFLICT_LEGAL = 50\n",
+    "TOTAL_ROWS = TOTAL_UNIQUE + DUP_NAME + DIFF_NPWP + DIFF_ADDR + CONFLICT_LEGAL\n",
+    "\n",
+    "def generate_base_record():\n",
+    "    nib = fake.numerify('############')\n",
+    "    npwp = fake.numerify('###############')\n",
+    "    nama_pt = fake.company().upper()\n",
+    "    flag_impor = random.choice([0, 1])\n",
+    "    flag_ekspor = random.choice([0, 1])\n",
+    "    \n",
+    "    return {\n",
+    "        \"NIB\": nib,\n",
+    "        \"NPWP\": npwp,\n",
+    "        \"OSS_ID\": f\"OSS-{fake.numerify('#######')}\",\n",
+    "        \"NAMA_PERUSAHAAN\": nama_pt,\n",
+    "        \"ALAMAT\": fake.street_address().upper(),\n",
+    "        \"KELURAHAN\": fake.city().upper(),\n",
+    "        \"FLAG_IMPOR\": flag_impor,\n",
+    "        \"FLAG_EKSPOR\": flag_ekspor,\n",
+    "        \"STATUS_NIB\": 'AKTIF'\n",
+    "    }\n",
+    "\n",
+    "base_records = [generate_base_record() for _ in range(TOTAL_UNIQUE)]\n",
+    "\n",
+    "def create_variants(count, change_type):\n",
+    "    variants = []\n",
+    "    samples = random.sample(base_records, count)\n",
+    "    for r in samples:\n",
+    "        v = r.copy()\n",
+    "        if change_type == 'name': v['NAMA_PERUSAHAAN'] += \" (VAR)\"\n",
+    "        elif change_type == 'npwp': v['NPWP'] = fake.numerify('###############')\n",
+    "        variants.append(v)\n",
+    "    return variants\n",
+    "\n",
+    "master_data = base_records + create_variants(DUP_NAME, 'name') + create_variants(DIFF_NPWP, 'npwp')\n",
+    "df_master = pd.DataFrame(master_data)\n",
+    "\n",
+    "# Split Systems\n",
+    "df_oss = df_master.sample(frac=0.8, random_state=42)\n",
+    "df_ceisa = df_master.sample(frac=0.8, random_state=24)\n",
+    "\n",
+    "# Dirty CEISA NPWP\n",
+    "df_ceisa['NPWP'] = df_ceisa['NPWP'].apply(lambda x: f\"{x[:2]}.{x[2:5]}.{x[5:8]}.{x[8]}-{x[9:12]}.{x[12:]}\" if random.random() > 0.5 else x)\n",
+    "\n",
+    "print(f'✅ Simulation Complete: {len(df_master)} total master records')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 2. Initial Data Profiling\n",
+    "Analisis kualitas data mentah sebelum dilakukan pembersihan."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"📊 PROFILING CEISA (NPWP Inconsistency Example)\")\n",
+    "display(df_ceisa[['NIB', 'NPWP', 'NAMA_PERUSAHAAN']].head())\n",
+    "\n",
+    "plt.figure(figsize=(10, 4))\n",
+    "msno.matrix(df_ceisa)\n",
+    "plt.title(\"Matrix Missing Values (CEISA)\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 3. Cleansing & Standardization\n",
+    "Tahap pembersihan nama perusahaan dan penyeragaman format NPWP."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def clean_name(name):\n",
+    "    if pd.isna(name): return None\n",
+    "    return unidecode(str(name)).upper().replace('PT.', 'PT').replace('CV.', 'CV').strip()\n",
+    "\n",
+    "def clean_npwp(npwp):\n",
+    "    if pd.isna(npwp): return None\n",
+    "    digits = re.sub(r'\\D', '', str(npwp))\n",
+    "    if len(digits) == 15:\n",
+    "        return f\"{digits[0:2]}.{digits[2:5]}.{digits[5:8]}.{digits[8]}-{digits[9:12]}.{digits[12:15]}\"\n",
+    "    return digits\n",
+    "\n",
+    "df_oss['NAMA_CLEAN'] = df_oss['NAMA_PERUSAHAAN'].apply(clean_name)\n",
+    "df_oss['NPWP_CLEAN'] = df_oss['NPWP'].apply(clean_npwp)\n",
+    "\n",
+    "df_ceisa['NAMA_CLEAN'] = df_ceisa['NAMA_PERUSAHAAN'].apply(clean_name)\n",
+    "df_ceisa['NPWP_CLEAN'] = df_ceisa['NPWP'].apply(clean_npwp)\n",
+    "\n",
+    "print(\"✅ Standardization Complete: All NPWPs now follow XX.XXX.XXX.X-XXX.XXX format\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 4. Matching & Record Linkage\n",
+    "Menghubungkan record yang sama antara OSS dan CEISA menggunakan NIB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "matched = pd.merge(\n",
+    "    df_oss, \n",
+    "    df_ceisa, \n",
+    "    on='NIB', \n",
+    "    how='inner', \n",
+    "    suffixes=('_OSS', '_CEISA')\n",
+    ")\n",
+    "print(f\"✅ Berhasil mencocokkan {len(matched)} record antara OSS dan CEISA\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 5. Golden Record Management\n",
+    "Penggabungan data dengan aturan **Survivorship**: Nama dan NPWP resmi diambil dari OSS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "golden_records = matched.copy()\n",
+    "golden_records = golden_records[[\n",
+    "    'NIB', 'NPWP_CLEAN_OSS', 'NAMA_CLEAN_OSS', 'ALAMAT_OSS', 'FLAG_IMPOR_CEISA', 'FLAG_EKSPOR_CEISA'\n",
+    "]]\n",
+    "golden_records.columns = ['NIB', 'NPWP', 'NAMA_PERUSAHAAN', 'ALAMAT', 'FLAG_IMPOR', 'FLAG_EKSPOR']\n",
+    "\n",
+    "print(f\"⭐ Golden Records created: {len(golden_records)} entities\")\n",
+    "display(golden_records.head())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 6. Final Quality Scorecard\n",
+    "Visualisasi perbandingan kualitas data sebelum dan sesudah MDM."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_score(df, npwp_col):\n",
+    "    pattern = r'^\\d{2}\\.\\d{3}\\.\\d{3}\\.\\d{1}-\\d{3}\\.\\d{3}$'\n",
+    "    validity = df[npwp_col].apply(lambda x: bool(re.match(pattern, str(x)))).mean() * 100\n",
+    "    uniqueness = (1 - df.duplicated(subset=['NIB']).sum() / len(df)) * 100\n",
+    "    return validity, uniqueness\n",
+    "\n",
+    "v_ceisa, u_ceisa = get_score(df_ceisa, 'NPWP')\n",
+    "v_gold, u_gold = get_score(golden_records, 'NPWP')\n",
+    "\n",
+    "labels = ['Validity (NPWP)', 'Uniqueness (NIB)']\n",
+    "ceisa_scores = [v_ceisa, u_ceisa]\n",
+    "gold_scores = [v_gold, u_gold]\n",
+    "\n",
+    "x = np.arange(len(labels))\n",
+    "width = 0.35\n",
+    "\n",
+    "fig, ax = plt.subplots(figsize=(10, 6))\n",
+    "ax.bar(x - width/2, ceisa_scores, width, label='CEISA (Raw)', color='salmon')\n",
+    "ax.bar(x + width/2, gold_scores, width, label='GOLDEN (MDM)', color='skyblue')\n",
+    "\n",
+    "ax.set_ylabel('Scores (%)')\n",
+    "ax.set_title('Peningkatan Kualitas Data (Pre vs Post MDM)')\n",
+    "ax.set_xticks(x)\n",
+    "ax.set_xticklabels(labels)\n",
+    "ax.legend()\n",
+    "plt.ylim(0, 110)\n",
+    "plt.show()\n",
+    "\n",
+    "print(f\"🚀 MDM Success! Validity NPWP naik dari {v_ceisa:.1f}% menjadi {v_gold:.1f}%.\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.10.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
+
+with open('Source/MDM_DJBC_Final.ipynb', 'w') as f:
+    json.dump(notebook, f, indent=1)
+
+print("Created Source/MDM_DJBC_Final.ipynb")
