@@ -5,10 +5,11 @@
 # ============================================================
 
 # Install missingno untuk visualisasi missing values
-!pip install missingno -q
+import subprocess
+subprocess.check_call(['pip', 'install', 'missingno', '-q'])
 
 # Install faker untuk generate data simulasi
-!pip install faker -q
+subprocess.check_call(['pip', 'install', 'faker', '-q'])
 
 # Konfirmasi instalasi berhasil
 print('✅ Instalasi library selesai!')
