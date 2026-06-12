@@ -11,6 +11,9 @@ subprocess.check_call(['pip', 'install', 'missingno', '-q'])
 # Install faker untuk generate data simulasi
 subprocess.check_call(['pip', 'install', 'faker', '-q'])
 
+# Install ydata-profiling untuk laporan profiling Tahap 1 & Tahap 6
+subprocess.check_call(['pip', 'install', 'ydata-profiling', '-q'])
+
 # Konfirmasi instalasi berhasil
 print('✅ Instalasi library selesai!')
 print('Library yang tersedia:')
