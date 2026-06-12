@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6. Pemetaan Kolom OSS ↔ CEISA — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="active">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Sumber Data</div>
+    <h1>6. Pemetaan Kolom OSS ↔ CEISA</h1>
+    <h2>6. Pemetaan Kolom — Konsep yang Sama, Beda Sistem</h2>
+<table>
+<thead>
+<tr>
+<th>Konsep</th>
+<th>OSS</th>
+<th>CEISA</th>
+<th>Catatan Bisnis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identitas perusahaan</td>
+<td><code>NIB</code></td>
+<td><code>NIB</code></td>
+<td><strong>Primary join key</strong> antar sistem</td>
+</tr>
+<tr>
+<td>NPWP</td>
+<td><code>NPWP_PERSEROAN</code></td>
+<td><code>NPWP</code></td>
+<td>Format bisa beda (dengan/tanpa titik-strip)</td>
+</tr>
+<tr>
+<td>Nama perusahaan</td>
+<td><code>NAMA_PERSEROAN</code></td>
+<td><code>NAMA_PERUSAHAAN</code></td>
+<td>Penulisan/singkatan bisa beda</td>
+</tr>
+<tr>
+<td>Alamat</td>
+<td><code>ALAMAT_PERSEROAN</code></td>
+<td><code>ALAMAT_PERUSAHAAN</code></td>
+<td>Format/kelengkapan bisa beda</td>
+</tr>
+<tr>
+<td>Kelurahan/Kota</td>
+<td><code>KELURAHAN_PERSEROAN</code></td>
+<td><code>KELURAHAN</code></td>
+<td>Bisa beda nilai (domisili vs lokasi gudang)</td>
+</tr>
+<tr>
+<td>Kode wilayah</td>
+<td><code>PERSEROAN_DAERAH_ID</code></td>
+<td><code>DAERAH_ID</code></td>
+<td>Idealnya sama, divalidasi ke tabel referensi</td>
+</tr>
+<tr>
+<td>Kode pos</td>
+<td><code>KODE_POS_PERSEROAN</code></td>
+<td><code>KODE_POS</code></td>
+<td>Idealnya sama</td>
+</tr>
+<tr>
+<td>Status NIB</td>
+<td><code>STATUS_NIB</code></td>
+<td><code>STATUS_NIB</code></td>
+<td><strong>Berpotensi konflik</strong> — sumber update beda waktu</td>
+</tr>
+<tr>
+<td>Tanggal terkait NIB</td>
+<td><code>TGL_PERUBAHAN_NIB</code></td>
+<td><code>TGL_TERBIT_NIB</code></td>
+<td>Beda makna: <em>perubahan terakhir</em> vs <em>terbit</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kolom unik OSS</strong> (tidak ada di CEISA): <code>NAMA_SINGKATAN</code>, <code>JENIS_PERSEROAN</code>, <code>STATUS_BADAN_HUKUM</code>, <code>STATUS_PERSEROAN</code>, <code>FLAG_IMPOR</code>, <code>FLAG_EKSPOR</code>, <code>JENIS_API</code></p>
+<p><strong>Kolom unik CEISA</strong> (tidak ada di OSS): <code>ID_PERUSAHAAN</code>, <code>NOMOR_TELPON</code>, <code>KATEGORI</code>, <code>NIPER</code>, <code>NOMOR_API</code>, <code>KODE_KANTOR</code>, <code>TGL_SYNC_OSS</code></p>
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s05.html">&larr; 5. Skema CEISA</a>
+    <a class="page-nav-btn next" href="s07.html">7. Dimensi DMBOK &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

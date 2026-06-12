@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Latar Belakang Bisnis — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="active">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Konteks Bisnis</div>
+    <h1>2. Latar Belakang Bisnis</h1>
+    <h2>2. Latar Belakang Bisnis — Kenapa Project Ini Diperlukan?</h2>
+<p><strong>Alur kondisi nyata di lapangan:</strong></p>
+<pre><code>   OSS (Pengurusan Izin Usaha)
+        │  registrasi / perubahan NIB, status badan hukum, dll.
+        ▼
+   &quot;System of Record&quot; legalitas — selalu mencerminkan kondisi terkini
+        │
+        │  ⚠ proses sinkronisasi BERJEDA (tidak real-time)
+        ▼
+   CEISA (Sistem Operasional Kepabeanan)
+        │  dipakai sehari-hari untuk transaksi impor/ekspor
+        ▼
+   Data CEISA berpotensi &quot;ketinggalan&quot; dari kondisi terkini di OSS
+</code></pre>
+<ul>
+<li>Update di OSS <strong>tidak otomatis</strong> ter-propagate ke CEISA → ada <strong>sync lag</strong>.</li>
+<li>Project ini adalah <strong>rekonsiliasi awal</strong>: membentuk Golden Record dari kondisi data <em>saat ini</em> (snapshot), bukan membangun sistem real-time.</li>
+<li><strong>Implikasi desain utama</strong>:
+  1. <strong>OSS = System of Record</strong> untuk field legalitas (identitas, status badan hukum, status NIB, alamat resmi).
+  2. <strong>CEISA = sumber operasional</strong> (kantor pelayanan, nomor telepon, fasilitas ekspor/impor aktif).
+  3. Indikator risiko langsung dari skenario ini:<ul>
+<li><code>HIGH_SYNC_LAG</code> → <code>TGL_SYNC_OSS</code> (CEISA) &gt; 30 hari → kemungkinan ada perubahan OSS yang belum ter-capture.</li>
+<li><code>IS_OUT_OF_SYNC</code> → <code>STATUS_NIB</code> OSS ≠ CEISA → konflik status yang harus diresolusi.</li>
+</ul>
+</li>
+<li><strong>Di luar ruang lingkup</strong>: mekanisme <em>auto-update CEISA via trigger</em> dari OSS — ini adalah rekomendasi <em>next step</em> pengembangan sistem MDM DJBC ke depan.</li>
+</ul>
+    <p>Framing "OSS = System of Record untuk field legalitas, CEISA = data mart dengan snapshot historis" di atas
+    konsisten dengan latar belakang bisnis project (lihat <code>docs/00_overview.md</code> &sect; Latar Belakang
+    Bisnis, direproduksi lengkap di Lampiran C).</p>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s01.html">&larr; 1. Judul & Konteks</a>
+    <a class="page-nav-btn next" href="s03.html">3. OSS vs CEISA &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

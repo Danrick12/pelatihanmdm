@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>20. Ringkasan Penutup &amp; Deliverables — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="active">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Insight &amp; Penutup</div>
+    <h1>20. Ringkasan Penutup &amp; Deliverables</h1>
+    <h2>20. Ringkasan Penutup</h2>
+<ul>
+<li><strong>Masalah</strong>: dua sistem (OSS &amp; CEISA) menyimpan data perusahaan yang sama dengan kualitas, format, dan tingkat ke-up-to-date-an berbeda.</li>
+<li><strong>Solusi</strong>: pipeline MDM 6 tahap — profiling → cleansing → matching → golden record (survivorship) → DQ monitoring → re-profiling.</li>
+<li><strong>Prinsip kunci</strong>: <em>OSS menang untuk legalitas, CEISA menang untuk operasional, status NIB pakai latest-date-wins, dan setiap konflik/risiko ditandai secara eksplisit (<code>IS_OUT_OF_SYNC</code>, <code>IS_STALE</code>, <code>HIGH_SYNC_LAG</code>)</em>.</li>
+<li><strong>Hasil akhir</strong>: <code>golden_record.csv</code> — <em>Single Importer and Exporter View</em> yang lebih lengkap, valid, unik, dan konsisten dibanding data sumber, lengkap dengan jejak audit (<code>audit_trail.csv</code>, <code>provenance_log.csv</code>) dan bukti peningkatan kualitas (<code>dq_scorecard.csv</code>, <code>profiling_before.html</code> vs <code>profiling_after.html</code>).</li>
+</ul>
+    <h2>📋 Checklist Deliverable (sesuai Pedoman Mini Project, di luar notebook .ipynb)</h2>
+    <div class="table-wrap"><table class="dtable">
+    <thead><tr><th>Deliverable</th><th>File</th><th>Status &amp; Ringkasan</th></tr></thead>
+    <tbody><tr><td>Dataset Bersih (oss_cleaned, ceisa_cleaned, dataset_clean)</td><td><code>data/processed/*.csv</code></td><td class='deliv-status-ok'>✅ 10,081 baris (OSS 5,500 + CEISA 5,198)</td></tr><tr><td>Audit Trail</td><td><code>reports/audit_trail.csv</code></td><td class='deliv-status-ok'>✅ 20 entri operasi cleansing</td></tr><tr><td>Candidate Pairs (hasil matching)</td><td><code>reports/candidate_pairs.csv</code></td><td class='deliv-status-ok'>✅ 5,030 pasangan kandidat</td></tr><tr><td>Duplicate Cluster</td><td><code>reports/duplicate_cluster.csv</code></td><td class='deliv-status-ok'>✅ 1,402 baris, 689 cluster</td></tr><tr><td>Golden Record</td><td><code>data/golden/golden_record.csv</code></td><td class='deliv-status-ok'>✅ 5,273 baris x 34 kolom</td></tr><tr><td>Provenance Log</td><td><code>reports/provenance_log.csv</code></td><td class='deliv-status-ok'>✅ 126,552 baris</td></tr><tr><td>Conflict Log</td><td><code>reports/conflict_log.csv</code></td><td class='deliv-status-ok'>✅ 3,817 baris</td></tr><tr><td>DQ Scorecard (Tahap 5)</td><td><code>reports/dq_scorecard.csv</code></td><td class='deliv-status-ok'>✅ 5 dimensi DMBOK x 3 dataset (OSS/CEISA/Golden)</td></tr><tr><td>DQ Rule Results &amp; Quality Gate</td><td><code>reports/dq_rule_results.csv, reports/quality_gate_report.csv</code></td><td class='deliv-status-ok'>✅ 44 rule, 11 gate</td></tr><tr><td>Profiling Before (ydata-profiling)</td><td><code>reports/profiling_before_oss.html, profiling_before_ceisa.html</code></td><td class='deliv-status-ok'>✅ Tahap 1</td></tr><tr><td>Profiling After (ydata-profiling)</td><td><code>reports/profiling_after.html</code></td><td class='deliv-status-ok'>✅ Tahap 6</td></tr><tr><td>Bahan Presentasi (PPT/PDF, maks. 10 slide)</td><td><code>reports/final_report.html, reports/final_report/index.html</code></td><td class='deliv-status-ok'>✅ Dua format: reports/final_report.html (single-page, cetak ke PDF/PPT untuk presentasi) dan reports/final_report/index.html (multi-page, untuk browsing interaktif per section)</td></tr></tbody></table></div>
+    <p style="margin-top:18px;color:#94A3B8;font-size:.85rem;">
+      Laporan dibuat otomatis oleh <code>Source/step11_final_report.py</code> &mdash;
+      12 June 2026, 07:09:45.
+    </p>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s19.html">&larr; 19. Insight & Rekomendasi</a>
+    <a class="page-nav-btn next" href="s21.html">21. (Bonus) Integrasi API &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

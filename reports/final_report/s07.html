@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7. Fondasi Logika Bisnis: 4 Dimensi Kualitas Data (DMBOK) — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="active">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Strategi &amp; Aturan MDM</div>
+    <h1>7. Fondasi Logika Bisnis: 4 Dimensi Kualitas Data (DMBOK)</h1>
+    <h2>7. Fondasi Logika Bisnis: 4 Dimensi Kualitas Data (DMBOK)</h2>
+<p>Seluruh aturan profiling, cleansing, dan monitoring dipetakan ke <strong>4 dimensi inti</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Dimensi</th>
+<th>Apa yang Dipastikan</th>
+<th>Cara Ukur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kelengkapan (Completeness)</strong></td>
+<td>Field identitas wajib selalu terisi</td>
+<td><code>NIB</code>, <code>NPWP</code>, <code>NAMA</code>, <code>STATUS_NIB</code> harus 100% terisi (dijamin di simulasi). Field opsional (<code>KELURAHAN</code>, <code>KODE_POS</code>, <code>NOMOR_TELPON</code>, dll) boleh kosong.</td>
+</tr>
+<tr>
+<td><strong>Validitas (Validity)</strong></td>
+<td>Data sesuai format/sintaks resmi</td>
+<td><code>NIB</code> = 13 digit numerik; <code>NPWP</code> = format <code>XX.XXX.XXX.X-XXX.XXX</code>. NPWP "kotor" di CEISA sengaja dipertahankan sebagai kasus uji.</td>
+</tr>
+<tr>
+<td><strong>Keunikan (Uniqueness)</strong></td>
+<td>Setiap entitas hanya terwakili sekali</td>
+<td>Cek duplikat <code>NIB</code>. <strong>Khusus CEISA</strong> (data mart): <code>NIB</code> sama dengan baris berbeda = <strong>normal</strong> (snapshot historis) → diselesaikan dengan ambil <code>TGL_SYNC_OSS</code> terbaru sebelum matching.</td>
+</tr>
+<tr>
+<td><strong>Ketepatan Waktu (Timeliness)</strong></td>
+<td>Data masih relevan &amp; tersinkron</td>
+<td><code>IS_STALE</code> = <code>TGL_PERUBAHAN_NIB</code> (OSS) &gt; 1 tahun. <code>HIGH_SYNC_LAG</code> = <code>TGL_SYNC_OSS</code> (CEISA) &gt; 30 hari (SLA sync bulanan).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><code>HIGH_SYNC_LAG</code> secara langsung merepresentasikan <strong>risiko bisnis</strong>: ada kemungkinan perubahan di OSS (system of record) yang belum sampai ke CEISA.</p>
+</blockquote>
+    <div class="callout">
+      <p>📊 <b>Catatan Implementasi</b></p>
+      <p>Pipeline Tahap 5 (<code>dq_scorecard.csv</code>) secara aktual mengukur <b>5 dimensi</b>: 4 dimensi inti
+      di atas (Completeness, Validity, Uniqueness, Timeliness) <b>+ Consistency</b> &mdash; yaitu kesesuaian nilai
+      antar-field/antar-sumber (mis. <code>STATUS_NIB</code>, <code>KATEGORI</code>, <code>FLAG_EKSPOR</code> antara
+      OSS dan CEISA), yang menjadi dasar flag <code>IS_OUT_OF_SYNC</code> dan
+      <code>IS_LOGICAL_CONFLICT_NIPER</code> pada Golden Record (lihat §10).</p>
+      <p>Laporan ini menambahkan dimensi ke-6, <b>Akurasi</b>, sebagai <i>placeholder</i> (lihat §17) agar gambaran
+      6 dimensi DMBOK lebih lengkap secara presentasi. Penambahan ini murni di level laporan &mdash;
+      <code>dq_scorecard.csv</code> dan <code>docs/02_business_rules.md</code> tidak diubah.</p>
+    </div>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s06.html">&larr; 6. Pemetaan Kolom</a>
+    <a class="page-nav-btn next" href="s08.html">8. Strategi Matching &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

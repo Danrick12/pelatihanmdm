@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>19. Insight Bisnis &amp; Rekomendasi Data Governance — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="active">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Insight &amp; Penutup</div>
+    <h1>19. Insight Bisnis &amp; Rekomendasi Data Governance</h1>
+    
+    <div class="callout good">
+      <b>1. Konsolidasi data</b> berhasil mengurangi <b>5,425 baris (50.7%)</b>
+      dari total record OSS+CEISA (10,698) menjadi <b>5,273 Golden Record</b>
+      (Single Importer/Exporter View), terutama berkat dedup snapshot CEISA (617 baris)
+      dan exact/fuzzy matching NIB &amp; NPWP (Tahap 3).
+    </div>
+    <div class="callout good">
+      <b>2. Uniqueness NIB meningkat signifikan</b>: dari 86.42% (OSS) /
+      83.30% (CEISA) menjadi <b>100.00%</b>
+      di Golden Record (di luar 521 NIB dummy/invalid yang sengaja dipertahankan sebagai
+      catatan kualitas data untuk verifikasi ulang).
+    </div>
+    <div class="callout warn">
+      <b>3. Risiko kualitas data yang masih perlu ditindaklanjuti</b> meski sudah ada Golden Record:
+      <ul>
+        <li><b>521</b> record memiliki NIB dummy/tidak valid (<code>0000000000000</code>) &rarr;
+            perlu verifikasi ulang ke OSS.</li>
+        <li><b>176</b> record berstatus <i>Sync Conflict</i> (STATUS_NIB OSS vs CEISA berbeda,
+            IS_OUT_OF_SYNC=True).</li>
+        <li><b>1,907</b> record memiliki <i>Logical Conflict</i> antara FLAG_EKSPOR dan NIPER.</li>
+        <li><b>2,972</b> record memiliki HIGH_SYNC_LAG (CEISA belum sinkron &gt;30 hari dari OSS).</li>
+        <li><b>4,113</b> record IS_STALE (TGL_PERUBAHAN_NIB OSS &gt;1 tahun) &rarr; kemungkinan
+            perusahaan tidak aktif/data usang.</li>
+        <li><b>940</b> record orphan (hanya ada di salah satu sistem) &rarr;
+            692 OSS_ONLY, 248 CEISA_ONLY.</li>
+      </ul>
+    </div>
+    <h2>Rekomendasi Implementasi Data Governance &amp; MDM</h2>
+    <ol class="reco-list">
+      <li><b>Auto-update CEISA via trigger dari OSS.</b> Saat ini 2,972
+        (56.4%) record melampaui SLA sync 30 hari — begitu ada perubahan di OSS
+        (status NIB, alamat, dll.), langsung dorong ke CEISA agar sync lag minimal.</li>
+      <li><b>Validasi format di titik input</b> (OSS &amp; CEISA) untuk NIB/NPWP/KODE_POS, agar anomali format
+        (mis. 798 record NPWP tidak baku di CEISA) tidak terbawa ke data mart/operasional.</li>
+      <li><b>Jadikan OSS sebagai System of Record</b> untuk legalitas (NIB, status badan hukum, status NIB) —
+        sudah diterapkan di survivorship Golden Record (terbukti dari grafik provenance §9), perlu
+        diformalkan sebagai kebijakan data governance resmi DJBC.</li>
+      <li><b>Bangun proses rekonsiliasi berkala</b> (mis. bulanan) untuk menyelesaikan
+        176 Sync Conflict dan 1,907 Logical Conflict (FLAG_EKSPOR vs NIPER)
+        yang terdeteksi di Golden Record, serta verifikasi ulang 521 record dengan NIB dummy.</li>
+      <li><b>Jadwalkan re-running pipeline</b> profiling &rarr; cleansing &rarr; matching &rarr; golden record
+        &rarr; DQ monitoring secara periodik agar <code>dq_scorecard.csv</code> dan laporan ini selalu
+        mencerminkan kondisi data terkini.</li>
+    </ol>
+    <div class="callout">
+      Rekomendasi di atas bersifat <b>operasional/teknis</b> dalam scope pipeline ini. Untuk pembahasan
+      <b>tata kelola (governance)</b> yang lebih strategis &mdash; termasuk pertanyaan "siapa yang
+      bertanggung jawab atas data master ini secara berkelanjutan?" di level Kemenkeu maupun nasional &mdash;
+      lihat §22 (Tata Kelola &amp; Rekomendasi Strategis).
+    </div>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s18.html">&larr; 18. Tahap 6 Profiling Dashboard</a>
+    <a class="page-nav-btn next" href="s20.html">20. Penutup & Deliverables &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

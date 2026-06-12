@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>21. (Bonus) Integrasi API — MDM Hub sebagai Service — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="active">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Insight &amp; Penutup</div>
+    <h1>21. (Bonus) Integrasi API — MDM Hub sebagai Service</h1>
+    
+    <div class="callout warn">
+      <b>Bagian opsional/bonus.</b> Section ini <b>di luar Tahap 1&ndash;6</b> PEDOMAN Mini Project
+      (lihat <code>docs/00_overview.md</code> baris 39, Lampiran C) dan <b>tidak termasuk deliverable wajib</b>.
+      Konten di bawah ini bersifat <b>konseptual/ilustratif</b>, diadaptasi dari Lab 5
+      &mdash; "API &amp; Data Integration" (<code>reference/Data Profiling (1).ipynb</code>), untuk
+      menggambarkan bagaimana <code>golden_record.csv</code> (5,273 baris) dapat dikonsumsi
+      sebagai layanan oleh sistem lain.
+    </div>
+
+    <h2>Arsitektur: MDM Hub sebagai Service</h2>
+    <pre><code>data/golden/golden_record.csv ──▶ MDM Hub API (FastAPI) ──▶ ngrok tunnel (publik, demo)
+                                            │
+                ┌───────────────┬───────────┼───────────────┬───────────────┐
+                ▼               ▼           ▼               ▼               ▼
+            GET /        GET /api/mdm/  GET /api/mdm/  GET /api/mdm/   POST /api/mdm/
+          (health check)   {nib}        search?nama=   list?page=      validate
+                                            │
+                                            ▼
+                                     GET /api/mdm/stats</code></pre>
+    <p>Pola arsitektur ini sejalan dengan Lab 5 (FastAPI + Pydantic schema + ngrok tunnel + nest_asyncio),
+    hanya domainnya diganti dari "Wajib Pajak / NPWP" menjadi "Importir-Eksportir / NIB" sesuai
+    <code>golden_record.csv</code> hasil Tahap 4.</p>
+
+    <h2>Endpoint MDM Hub API (konseptual)</h2>
+    <div class="table-wrap"><table class="dtable">
+    <thead><tr><th>Endpoint</th><th>Method</th><th>Deskripsi</th></tr></thead>
+    <tbody>
+      <tr><td><code>/</code></td><td>GET</td><td>Health check &mdash; status service &amp; jumlah total record.</td></tr>
+      <tr><td><code>/api/mdm/{nib}</code></td><td>GET</td><td>Ambil 1 Golden Record berdasarkan <code>NIB</code>.</td></tr>
+      <tr><td><code>/api/mdm/search?nama=</code></td><td>GET</td><td>Cari Golden Record berdasarkan kemiripan <code>NAMA</code> (fuzzy search).</td></tr>
+      <tr><td><code>/api/mdm/list?page=</code></td><td>GET</td><td>Daftar Golden Record dengan pagination.</td></tr>
+      <tr><td><code>/api/mdm/validate</code></td><td>POST</td><td>Validasi data NIB/NPWP/Nama dari sistem eksternal terhadap MDM (mis. cek <code>VAL-NIB-DUMMY</code>/<code>VAL-NPWP-FORMAT</code>) sebelum diproses.</td></tr>
+      <tr><td><code>/api/mdm/stats</code></td><td>GET</td><td>Statistik ringkas MDM Hub (jumlah record, distribusi <code>SOURCE</code>, skor DQ Scorecard &mdash; lihat §17).</td></tr>
+    </tbody></table></div>
+
+    <h2>Sinkronisasi Event-Driven (Webhook)</h2>
+    <p><code>docs/00_overview.md</code> baris 24 mencatat sebagai <i>next step</i> di luar scope:
+    "idealnya ada mekanisme <b>auto-update CEISA via trigger</b> dari OSS agar sync lag ke depan minim"
+    &mdash; terkait langsung dengan <code>HIGH_SYNC_LAG</code>/<code>IS_OUT_OF_SYNC</code> yang dibahas di
+    §19 (Insight &amp; Rekomendasi). Lab 5 mengilustrasikan mekanisme ini lewat pola
+    <code>WebhookEvent</code> &amp; <code>WebhookBroker</code>:</p>
+    <pre><code>WebhookEvent(
+    event_id      = "evt-00123",
+    event_type    = "DATA_UPDATED",   # DATA_CREATED | DATA_UPDATED | DATA_DELETED
+    entity_type   = "GOLDEN_RECORD",
+    nib           = "1234567890123",
+    changed_fields= ["STATUS_NIB"],
+    old_values    = {"STATUS_NIB": "AKTIF"},
+    new_values    = {"STATUS_NIB": "NONAKTIF"},
+    timestamp     = "2026-06-12T10:00:00",
+    source        = "OSS",
+)</code></pre>
+    <p>Konsepnya: setiap kali <code>STATUS_NIB</code>/<code>KATEGORI</code>/<code>FLAG_EKSPOR</code> berubah
+    di OSS, MDM Hub <b>publish</b> event <code>WebhookEvent</code> ke subscriber (mis. CEISA, sistem internal
+    DJBC lain) sehingga update OSS ter-propagate tanpa menunggu sync batch &mdash; mengurangi
+    <code>HIGH_SYNC_LAG</code> (2,972 record saat ini, lihat §10/§19) dan
+    <code>IS_OUT_OF_SYNC</code> (176 record).</p>
+
+    <div class="callout warn">
+      <b>Disclaimer:</b> Seluruh API, endpoint, dan webhook di atas adalah <b>desain konseptual</b> untuk
+      ilustrasi &mdash; tidak diimplementasikan/dijalankan sebagai bagian dari deliverable Tahap 0&ndash;6
+      project ini.
+    </div>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s20.html">&larr; 20. Penutup & Deliverables</a>
+    <a class="page-nav-btn next" href="s22.html">22. Tata Kelola & Rekomendasi &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

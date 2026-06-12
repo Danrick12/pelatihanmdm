@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>22. Tata Kelola &amp; Rekomendasi Strategis — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="active">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Insight &amp; Penutup</div>
+    <h1>22. Tata Kelola &amp; Rekomendasi Strategis</h1>
+    
+    <div class="callout">
+      <p>Pipeline Tahap 0&ndash;6 dan integrasi API konseptual di §21 menunjukkan bahwa secara <b>teknis</b>,
+      MDM untuk data importir/eksportir DJBC <b>sangat memungkinkan</b> untuk dibangun. Laporan ini pada
+      dasarnya adalah <b>prototipe / proof-of-concept</b> &mdash; tantangan sesungguhnya bukan pada teknologi,
+      melainkan pada <b>tata kelola (governance)</b>.</p>
+      <p>Dan semakin <b>makro</b> skala penerapannya, semakin besar dampaknya: pada level unit setingkat
+      <b>Eselon I</b> saja, MDM yang dapat dipercaya sudah berpengaruh signifikan terhadap kualitas
+      keputusan &mdash; apalagi bila diterapkan lintas Kementerian/Lembaga atau di level <b>nasional</b>.</p>
+    </div>
+
+    <h2>Temuan Utama</h2>
+    <p>Masalah data di DJBC <b>bukan semata teknikal</b> &mdash; akarnya adalah <b>tidak ada pihak yang secara
+    eksplisit bertanggung jawab</b> memastikan data master tetap akurat sepanjang waktu.</p>
+
+    <h2>Level Makro &mdash; Kajian Master Data Nasional</h2>
+    <ul>
+      <li>Untuk entitas <b>individu</b>, <b>NIK (Dukcapil)</b> sudah berfungsi sebagai <i>de facto</i> master
+      identifier penduduk.</li>
+      <li>Untuk entitas <b>badan usaha</b>, belum ada master yang jelas &mdash; ada tiga kandidat yang perlu
+      dikaji lebih lanjut:
+        <ul>
+          <li><b>NIB</b> (OSS-BKPM, domain perizinan)</li>
+          <li><b>NPWP</b> (DJP, domain perpajakan)</li>
+          <li>Data <b>Ditjen AHU</b> (domain legalitas badan hukum)</li>
+        </ul>
+      </li>
+      <li>Masing-masing kandidat punya kekuatan di domainnya masing-masing, tapi juga keterbatasan &mdash;
+      kajian lebih lanjut diperlukan untuk menentukan mana yang paling layak menjadi sumber master
+      lintas K/L.</li>
+      <li><b>Satu Data Indonesia</b> (Perpres 39/2019) idealnya diperkuat mandatnya ke layer ini.</li>
+    </ul>
+
+    <h2>Level Mikro &mdash; Gap Konkret di DJBC</h2>
+    <ul>
+      <li>Data badan usaha dari OSS dapat diduga sudah divalidasi saat <i>onboarding</i>, tetapi tidak ada
+      kewajiban pembaruan berkala &mdash; data berpotensi <i>stale</i> tanpa ada yang mendeteksi (lihat
+      <code>HIGH_SYNC_LAG</code>/<code>IS_OUT_OF_SYNC</code> di §10/§19).</li>
+      <li>Kementerian Keuangan perlu membangun <b>MDM internal</b> yang mengambil data dari sumber master
+      nasional dan memperkayanya dengan atribut domain Kemenkeu (mis. status kepabeanan, NIPER, dsb).</li>
+    </ul>
+
+    <h2>Prinsip Tata Kelola (DMBOK Ch. 10)</h2>
+    <ul>
+      <li>Setiap atribut di MDM harus punya <b>Data Steward</b> yang bertanggung jawab atas definisi,
+      standar kualitas, dan eskalasi anomali &mdash; bukan cukup ada sistemnya, harus ada <b>orangnya</b>.</li>
+      <li><b>MDM bukan soal tools-nya; MDM adalah disiplin.</b> Tanpa governance yang jelas, sistem
+      secanggih apapun tidak menjamin kebenaran datanya.</li>
+    </ul>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s21.html">&larr; 21. (Bonus) Integrasi API</a>
+    <a class="page-nav-btn next" href="appendix-dict.html">A. Data Dictionary &rarr;</a>
+  </div>
+</main>
+</body>
+</html>
