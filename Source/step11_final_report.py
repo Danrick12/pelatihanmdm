@@ -607,7 +607,8 @@ if __name__ == "__main__":
         tantangan utamanya justru pada <b>tata kelola (governance)</b>, lihat §22.
       </p>
       <p style="max-width:780px;margin:18px auto 0 auto;color:#94A3B8;font-size:.85rem;">
-        <b>Anggota Kelompok 5:</b> <i>(daftar nama menyusul)</i>
+        <b>Anggota Kelompok 5:</b> Yola Dafwita Chandra &middot; Farkhan Wisnu Wardhono &middot;
+        Vivin Nur Aziza &middot; Beryl Cholif Arrahman Rahardjo &middot; Dananjaya Ricky Setiaji
       </p>
     </div>
     """
