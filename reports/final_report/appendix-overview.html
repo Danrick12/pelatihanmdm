@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lampiran C — Overview &amp; Roadmap Project — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="active">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Lampiran</div>
+    <h1>Lampiran C — Overview &amp; Roadmap Project</h1>
+    <h1>MDM Mini Project — Kelompok 5 (DJBC): Master Data Importir &amp; Eksportir Nasional</h1>
+<h2>1. Konteks Project</h2>
+<p>Mengacu pada <code>reference/PEDOMAN MINI PROJECT MDM 2026.pdf</code>, Kelompok 5 (DJBC) mengerjakan:</p>
+<ul>
+<li><strong>Tema</strong>: Master Data Importir dan Eksportir Nasional</li>
+<li><strong>Sumber data simulasi</strong>: CEISA, OSS (NIB)</li>
+<li><strong>Fokus permasalahan</strong>: duplikasi perusahaan, format NPWP tidak konsisten, alamat perusahaan berbeda antar sistem, konflik data legal entity</li>
+<li><strong>Target Golden Record</strong>: Single Importer and Exporter View</li>
+</ul>
+<p>Gaya pengerjaan &amp; teknik mengikuti <code>reference/Data Profiling (1).ipynb</code> (referensi kelompok lain — Master Data Wajib Pajak), tapi datanya diganti OSS + CEISA dan disesuaikan aturan bisnis Kelompok 5.</p>
+<h3>Latar Belakang Bisnis</h3>
+<p>DJBC mengambil <strong>data master legalitas</strong> (NIB, status, dll) dari OSS. Namun, update yang terjadi di OSS tidak serta-merta ter-propagate ke CEISA — ada jeda sinkronisasi yang membuat data CEISA berpotensi "ketinggalan" dari kondisi terkini di OSS.</p>
+<p>Project ini adalah <strong>rekonsiliasi awal</strong> untuk membentuk Golden Record (MDM) dari kondisi data saat ini. Implikasinya terhadap desain:</p>
+<ul>
+<li><strong>OSS diperlakukan sebagai System of Record</strong> untuk field legalitas (lihat survivorship rules di <a href="02_business_rules.md"><code>02_business_rules.md</code></a> §3) — karena OSS dianggap mencerminkan kondisi terkini, sementara data CEISA bisa lagging di belakangnya.</li>
+<li><strong>Sync lag</strong> (<code>TGL_SYNC_OSS</code> &gt; 30 hari → <code>HIGH_SYNC_LAG</code>) dan <strong>konflik status</strong> (<code>STATUS_NIB</code> OSS ≠ CEISA → <code>IS_OUT_OF_SYNC</code>, lihat <a href="02_business_rules.md"><code>02_business_rules.md</code></a> §1 &amp; Tahap 4) adalah indikator langsung dari skenario ini: kemungkinan ada perubahan di OSS yang belum tercapture di CEISA/MDM DJBC.</li>
+<li>Tabel CEISA yang diterima BC bersifat <strong>data mart</strong>, bukan tabel master normal — <code>NIB</code> yang sama bisa punya <code>NAMA_PERUSAHAAN</code>/<code>ALAMAT_PERUSAHAAN</code> berbeda di baris berbeda (snapshot historis). MDM harus mengambil snapshot <strong>terbaru</strong> (<code>TGL_SYNC_OSS</code> paling baru) — lihat dimensi "Unik" di <a href="02_business_rules.md"><code>02_business_rules.md</code></a> §1.</li>
+</ul>
+<blockquote>
+<p><strong>Di luar ruang lingkup project ini</strong>: setelah Golden Record terbentuk, idealnya ada mekanisme <strong>auto-update CEISA via trigger</strong> dari OSS agar sync lag ke depan minim. Ini adalah <em>next step</em> pengembangan sistem MDM DJBC, di luar Tahap 1-6 PEDOMAN.</p>
+</blockquote>
+<h2>2. Dokumen Pendukung</h2>
+<table>
+<thead>
+<tr>
+<th>Dokumen</th>
+<th>Isi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="01_data_dictionary.md"><code>01_data_dictionary.md</code></a></td>
+<td>Pemetaan kolom OSS vs CEISA: sama, beda, unik</td>
+</tr>
+<tr>
+<td><a href="02_business_rules.md"><code>02_business_rules.md</code></a></td>
+<td>Aturan matching, survivorship, validity, anomali bisnis</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap1_data_profiling.md"><code>tahapan/tahap1_data_profiling.md</code></a></td>
+<td>Detail Tahap 1 — Data Profiling</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap2_cleansing_standardization.md"><code>tahapan/tahap2_cleansing_standardization.md</code></a></td>
+<td>Detail Tahap 2 — Cleansing &amp; Standardization</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap3_duplicate_matching.md"><code>tahapan/tahap3_duplicate_matching.md</code></a></td>
+<td>Detail Tahap 3 — Duplicate Detection &amp; Matching</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap4_golden_record.md"><code>tahapan/tahap4_golden_record.md</code></a></td>
+<td>Detail Tahap 4 — Golden Record &amp; Survivorship</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap5_dq_monitoring.md"><code>tahapan/tahap5_dq_monitoring.md</code></a></td>
+<td>Detail Tahap 5 — Data Quality Monitoring</td>
+</tr>
+<tr>
+<td><a href="tahapan/tahap6_profiling_dashboard.md"><code>tahapan/tahap6_profiling_dashboard.md</code></a></td>
+<td>Detail Tahap 6 — YData Profiling Dashboard</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Di luar ruang lingkup</strong>: Lab "API &amp; Data Integration" (FastAPI/ngrok/webhook) di <code>Data Profiling (1).ipynb</code> tidak termasuk Tahap 1-6 PEDOMAN — tidak dikerjakan kecuali sebagai bonus opsional jika waktu tersisa.</p>
+</blockquote>
+<h2>3. Rencana Struktur Folder (target akhir)</h2>
+<pre><code>reference/      &lt;- PEDOMAN PDF, Data Profiling (1).ipynb (acuan gaya &amp; teknik)
+docs/           &lt;- dokumen perencanaan ini
+  tahapan/
+data/
+  raw/          &lt;- oss_nib_data.csv, ceisa_data.csv (regenerasi sesuai data_dictionary)
+  processed/    &lt;- oss_cleaned.csv, ceisa_cleaned.csv, dataset_clean.csv
+  golden/       &lt;- golden_record.csv
+notebooks/
+  Mini_Project_Kelompok_5_DJBC.ipynb   &lt;- notebook utama, dibangun bertahap
+scripts/        &lt;- script pendukung (regenerasi data dll, ditulis ulang)
+reports/        &lt;- audit_trail.csv, candidate_pairs.csv, duplicate_cluster.csv,
+                   provenance_log.csv, dq_scorecard.csv,
+                   profiling_before.html, profiling_after.html
+archive/        &lt;- file-file lama hasil eksperimen sebelumnya
+</code></pre>
+<blockquote>
+<p>Reorganisasi folder (pemindahan file lama ke <code>archive/</code> &amp; <code>reference/</code>) sudah dieksekusi (Step 0 selesai).</p>
+</blockquote>
+<h2>4. Roadmap &amp; Status</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Deskripsi</th>
+<th>Output</th>
+<th>Bobot</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Rapikan struktur folder (archive file lama)</td>
+<td>struktur folder baru</td>
+<td>-</td>
+<td>✅ Selesai</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Data dictionary OSS vs CEISA</td>
+<td><code>01_data_dictionary.md</code></td>
+<td>-</td>
+<td>✅ Selesai</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Business rules (matching, survivorship, validity)</td>
+<td><code>02_business_rules.md</code></td>
+<td>-</td>
+<td>✅ Selesai</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Regenerasi data simulasi OSS &amp; CEISA</td>
+<td><code>data/raw/oss_nib_data.csv</code>, <code>data/raw/ceisa_data.csv</code></td>
+<td>-</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Tahap 1 — Data Profiling</td>
+<td><code>profiling_before.html</code></td>
+<td>15%</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Tahap 2 — Cleansing &amp; Standardization</td>
+<td><code>dataset_clean.csv</code>, <code>audit_trail.csv</code></td>
+<td>20%</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Tahap 3 — Duplicate Detection &amp; Matching</td>
+<td><code>candidate_pairs.csv</code>, <code>duplicate_cluster.csv</code></td>
+<td>20%</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Tahap 4 — Golden Record &amp; Survivorship</td>
+<td><code>golden_record.csv</code>, <code>provenance_log.csv</code></td>
+<td>20%</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Tahap 5 — Data Quality Monitoring</td>
+<td><code>dq_scorecard.csv</code></td>
+<td>15%</td>
+<td>⬜ Belum</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Tahap 6 — YData Profiling Dashboard</td>
+<td><code>profiling_after.html</code></td>
+<td>10%</td>
+<td>⬜ Belum</td>
+</tr>
+</tbody>
+</table>
+<p>Setiap step dikerjakan satu per satu, dengan checkpoint review bareng sebelum lanjut ke step berikutnya.</p>
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="appendix-rules.html">&larr; B. Business Rules</a>
+    <a class="page-nav-btn next" href="appendix-data.html">D. Data Viewer (CSV) &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

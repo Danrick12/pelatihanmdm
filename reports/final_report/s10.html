@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10. Penandaan Konflik &amp; Risiko (Flag Bisnis Utama) — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="active">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Strategi &amp; Aturan MDM</div>
+    <h1>10. Penandaan Konflik &amp; Risiko (Flag Bisnis Utama)</h1>
+    <h2>10. Penandaan Konflik &amp; Risiko (Flag Bisnis Utama)</h2>
+<p>Tiga <em>flag</em> ini adalah <strong>inti logika bisnis</strong> Golden Record — masing-masing merepresentasikan jenis risiko data yang berbeda:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Kondisi Trigger</th>
+<th>Arti Bisnis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>IS_OUT_OF_SYNC</code></strong></td>
+<td><code>STATUS_NIB</code> OSS ≠ <code>STATUS_NIB</code> CEISA</td>
+<td>Status legal perusahaan di OSS sudah berubah (mis. dicabut/dibekukan), tapi CEISA masih mencatat status lama → <strong>risiko transaksi kepabeanan dengan entitas yang sudah tidak valid</strong>.</td>
+</tr>
+<tr>
+<td><strong><code>IS_STALE</code></strong></td>
+<td><code>TGL_PERUBAHAN_NIB</code> (OSS) &gt; 1 tahun dari sekarang</td>
+<td>Data legal sudah lama tidak diperbarui — kemungkinan perusahaan tidak aktif/data usang.</td>
+</tr>
+<tr>
+<td><strong><code>HIGH_SYNC_LAG</code></strong></td>
+<td><code>TGL_SYNC_OSS</code> (CEISA) &gt; 30 hari dari sekarang</td>
+<td>SLA sinkronisasi bulanan terlampaui — CEISA berpotensi tidak mencerminkan kondisi OSS terkini.</td>
+</tr>
+</tbody>
+</table>
+<p>Ketiga flag ini menjadi dasar untuk:
+- Memprioritaskan record mana yang perlu <strong>ditinjau ulang manual</strong> oleh DJBC.
+- Mengukur <strong>dimensi Consistency &amp; Timeliness</strong> pada DQ Scorecard (Tahap 5).</p>
+    <h2>📊 Data Aktual</h2>
+    <div>                            <div id="45950272-5d52-4d9c-a8f3-2c42648333d6" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("45950272-5d52-4d9c-a8f3-2c42648333d6")) {                    Plotly.newPlot(                        "45950272-5d52-4d9c-a8f3-2c42648333d6",                        [{"marker":{"color":"#E53935"},"text":["176 (3.3%)","4,113 (78.0%)","2,972 (56.4%)","1,907 (36.2%)","521 (9.9%)"],"textposition":"outside","x":["IS_OUT_OF_SYNC\u003cbr\u003e(Sync Conflict)","IS_STALE\u003cbr\u003e(Data Usang)","HIGH_SYNC_LAG\u003cbr\u003e(Sync &gt; 30 hari)","IS_LOGICAL_CONFLICT_NIPER\u003cbr\u003e(Ekspor vs NIPER)","NIB Dummy\u003cbr\u003e(Belum Terverifikasi)"],"y":[176,4113,2972,1907,521],"type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Record Golden Record dengan Flag Risiko (dari 5,273 total)"},"yaxis":{"title":{"text":"Jumlah Record"}},"margin":{"l":40,"r":20,"t":50,"b":40},"font":{"family":"Segoe UI, sans-serif","size":12},"legend":{"orientation":"h","y":-0.18}},                        {"displaylogo": false, "responsive": true}                    )                };            </script>        </div>
+    <ul>
+      <li><b>IS_OUT_OF_SYNC</b>: 176 record (3.34%) — STATUS_NIB OSS
+        berbeda dari CEISA, berisiko transaksi kepabeanan dengan entitas yang status legalnya sudah berubah.</li>
+      <li><b>IS_STALE</b>: 4,113 record (78.00%) — TGL_PERUBAHAN_NIB OSS sudah &gt;1 tahun.</li>
+      <li><b>HIGH_SYNC_LAG</b>: 2,972 record (56.36%) — TGL_SYNC_OSS
+        CEISA sudah &gt;30 hari, melampaui SLA sinkronisasi bulanan.</li>
+    </ul>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s09.html">&larr; 9. Survivorship</a>
+    <a class="page-nav-btn next" href="s11.html">11. Anomali Bisnis &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="active">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide">
+    
+    <div class="cover">
+      <div class="slide-kicker">Laporan Akhir &amp; Bahan Presentasi — Mini Project MDM 2026</div>
+      <h1>Master Data Management — Importir &amp; Eksportir Nasional (DJBC)</h1>
+      <div class="subtitle">Single Importer and Exporter View · Kelompok 5 ·
+        Dibuat otomatis dari hasil pipeline Tahap 0&ndash;6 pada 12 June 2026, 07:09</div>
+      <div class="kpi-row">
+        <div class='kpi-card'><div class='kpi-value' style='color:#90A4AE'>10,698</div><div class='kpi-label'>Total Record Sumber</div><div class='kpi-sub'>OSS 5,500 + CEISA 5,198</div></div>
+        <div class='kpi-card'><div class='kpi-value' style='color:#2E7D32'>5,273</div><div class='kpi-label'>Golden Record</div><div class='kpi-sub'>Reduksi 50.7%</div></div>
+        <div class='kpi-card'><div class='kpi-value' style='color:#5C6BC0'>80.0 / 85.2</div><div class='kpi-label'>DQ Overall Before</div><div class='kpi-sub'>OSS / CEISA (skala 0-100)</div></div>
+        <div class='kpi-card'><div class='kpi-value' style='color:#2E7D32'>84.1</div><div class='kpi-label'>DQ Overall After</div><div class='kpi-sub'>Golden Record (skala 0-100)</div></div>
+        <div class='kpi-card'><div class='kpi-value' style='color:#E53935'>176</div><div class='kpi-label'>Sync Conflict</div><div class='kpi-sub'>IS_OUT_OF_SYNC = True</div></div>
+        <div class='kpi-card'><div class='kpi-value' style='color:#FB8C00'>2,972</div><div class='kpi-label'>High Sync Lag</div><div class='kpi-sub'>TGL_SYNC_OSS &gt; 30 hari</div></div>
+      </div>
+      <p style="max-width:780px;margin:0 auto;color:#64748B;">
+        Laporan ini merangkum seluruh hasil pipeline MDM (Tahap 0&ndash;6: Simulasi, Profiling, Cleansing &amp;
+        Standardization, Duplicate Detection &amp; Matching, Golden Record &amp; Survivorship, Data Quality
+        Monitoring, dan Profiling Dashboard), digabungkan dengan dokumentasi logika bisnis di
+        <code>docs/</code>. Setiap section di bawah ini didesain sebagai satu "slide" sehingga laporan ini
+        dapat langsung digunakan sebagai bahan presentasi (cetak ke PDF untuk mode slide).
+      </p>
+      <p style="max-width:780px;margin:8px auto 0 auto;color:#64748B;">
+        Laporan ini juga berfungsi sebagai <b>prototipe/proof-of-concept</b>: secara teknis, MDM untuk data
+        importir &amp; eksportir DJBC sangat memungkinkan untuk dibangun (lihat juga §21, integrasi API) &mdash;
+        tantangan utamanya justru pada <b>tata kelola (governance)</b>, lihat §22.
+      </p>
+      <p style="max-width:780px;margin:18px auto 0 auto;color:#94A3B8;font-size:.85rem;">
+        <b>Anggota Kelompok 5:</b> <i>(daftar nama menyusul)</i>
+      </p>
+    </div>
+    
+  </section>
+  <section class="slide">
+    <h1>Daftar Isi</h1>
+    <div class="toc-grid">
+    
+    
+    
+    
+      <div class="toc-group">
+        <h3>Konteks Bisnis</h3>
+        <ul class="linklist">
+        
+          <li><a href="s01.html">1. Judul & Konteks</a></li>
+        
+          <li><a href="s02.html">2. Latar Belakang</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    
+      <div class="toc-group">
+        <h3>Sumber Data</h3>
+        <ul class="linklist">
+        
+          <li><a href="s03.html">3. OSS vs CEISA</a></li>
+        
+          <li><a href="s04.html">4. Skema OSS</a></li>
+        
+          <li><a href="s05.html">5. Skema CEISA</a></li>
+        
+          <li><a href="s06.html">6. Pemetaan Kolom</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    
+      <div class="toc-group">
+        <h3>Strategi & Aturan MDM</h3>
+        <ul class="linklist">
+        
+          <li><a href="s07.html">7. Dimensi DMBOK</a></li>
+        
+          <li><a href="s08.html">8. Strategi Matching</a></li>
+        
+          <li><a href="s09.html">9. Survivorship</a></li>
+        
+          <li><a href="s10.html">10. Konflik & Risiko</a></li>
+        
+          <li><a href="s11.html">11. Anomali Bisnis</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    
+      <div class="toc-group">
+        <h3>Pipeline & Hasil</h3>
+        <ul class="linklist">
+        
+          <li><a href="s12.html">12. Pipeline E2E</a></li>
+        
+          <li><a href="s13.html">13. Tahap 1 Profiling</a></li>
+        
+          <li><a href="s14.html">14. Tahap 2 Cleansing</a></li>
+        
+          <li><a href="s15.html">15. Tahap 3 Matching</a></li>
+        
+          <li><a href="s16.html">16. Tahap 4 Golden Record</a></li>
+        
+          <li><a href="s17.html">17. Tahap 5 DQ Monitoring</a></li>
+        
+          <li><a href="s18.html">18. Tahap 6 Profiling Dashboard</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    
+      <div class="toc-group">
+        <h3>Insight & Penutup</h3>
+        <ul class="linklist">
+        
+          <li><a href="s19.html">19. Insight & Rekomendasi</a></li>
+        
+          <li><a href="s20.html">20. Penutup & Deliverables</a></li>
+        
+          <li><a href="s21.html">21. (Bonus) Integrasi API</a></li>
+        
+          <li><a href="s22.html">22. Tata Kelola & Rekomendasi</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    
+      <div class="toc-group">
+        <h3>Lampiran</h3>
+        <ul class="linklist">
+        
+          <li><a href="appendix-dict.html">A. Data Dictionary</a></li>
+        
+          <li><a href="appendix-rules.html">B. Business Rules</a></li>
+        
+          <li><a href="appendix-overview.html">C. Overview & Roadmap</a></li>
+        
+          <li><a href="appendix-data.html">D. Data Viewer (CSV)</a></li>
+        
+        </ul>
+      </div>
+    
+    
+    </div>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11. Anomali Bisnis yang Disimulasikan &amp; Diuji — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="active">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Strategi &amp; Aturan MDM</div>
+    <h1>11. Anomali Bisnis yang Disimulasikan &amp; Diuji</h1>
+    <h2>11. Anomali Bisnis yang Disimulasikan &amp; Diuji</h2>
+<p>Setiap anomali sengaja disuntikkan ke data simulasi (Tahap 0) untuk membuktikan setiap tahap pipeline bekerja:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Anomali</th>
+<th>Contoh</th>
+<th>Diuji di Tahap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Stale Data</strong></td>
+<td><code>TGL_PERUBAHAN_NIB</code> sangat lama (mis. 2015)</td>
+<td>Profiling → <code>IS_STALE</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Inconsistent NPWP</strong></td>
+<td>CEISA kirim NPWP tanpa titik/strip</td>
+<td>Cleansing — standardisasi format</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Fuzzy Identity / Typo Nama</strong></td>
+<td>Nama perusahaan mirip, ada "(TYPO)" atau beda spasi</td>
+<td>Fuzzy Matching</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>NIB Typo</strong></td>
+<td>Satu digit NIB beda antar sistem</td>
+<td>Secondary Matching via NPWP</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Sync Conflict</strong></td>
+<td><code>STATUS_NIB</code> OSS = <code>DICABUT</code>, CEISA = <code>AKTIF</code></td>
+<td>Survivorship — <code>IS_OUT_OF_SYNC</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Logical Conflict</strong></td>
+<td><code>FLAG_EKSPOR = N</code> tapi <code>NIPER</code> terisi di CEISA</td>
+<td>Business Rule / Consistency Validation</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Orphan Records</strong></td>
+<td>Record hanya ada di OSS atau hanya di CEISA</td>
+<td>Golden Record — <code>SOURCE</code> tracking</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Missing Optional Field</strong></td>
+<td><code>KELURAHAN</code>, <code>KODE_POS</code>, <code>NOMOR_TELPON</code> kosong (field wajib selalu terisi)</td>
+<td>Completeness Profiling</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Duplicate Entry</strong></td>
+<td>Satu perusahaan muncul 2x di sistem yang sama</td>
+<td>Duplicate Detection</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Data Mart Snapshot Duplicate</strong></td>
+<td><code>NIB</code> sama, &gt;1 baris CEISA dengan <code>NAMA_PERUSAHAAN</code>/<code>ALAMAT</code>/<code>TGL_SYNC_OSS</code> berbeda</td>
+<td>Pre-matching dedup (ambil snapshot terbaru)</td>
+</tr>
+</tbody>
+</table>
+    <h2>📊 Hasil Aktual per Anomali</h2>
+    <div class="table-wrap"><table class="dtable">
+    <thead><tr><th>#</th><th>Anomali</th><th>Contoh Skenario</th><th>Diuji di</th><th>Temuan Aktual dari Pipeline</th></tr></thead>
+    <tbody><tr><td>1</td><td><b>Stale Data</b></td><td>TGL_PERUBAHAN_NIB OSS sangat lama (&gt;1 tahun)</td><td>Tahap 1/5 — IS_STALE</td><td>OSS (before): 4,494/5,500 (81.7%) gagal rule TIME-IS_STALE.<br>Golden (after): 4,113/5,273 (78.0%) record IS_STALE=True.</td></tr><tr><td>2</td><td><b>Inconsistent NPWP</b></td><td>CEISA mengirim NPWP tanpa titik/strip</td><td>Tahap 2 — Standardisasi format</td><td>CEISA (before): 865/5,198 (16.6%) gagal VAL-NPWP-FORMAT (75.0% valid).<br>Golden (after): 51/5,273 (99.03% valid) — 798 record CEISA (15.4%) ditandai <code>FORMAT_NPWP_TIDAK_BAKU</code> di flagged_for_review.csv.</td></tr><tr><td>3</td><td><b>Fuzzy Identity / Typo Nama</b></td><td>Nama perusahaan mirip, ada "(TYPO)" / beda spasi</td><td>Tahap 3 — Fuzzy Matching</td><td>3 pasangan candidate_pairs masuk zona <code>FUZZY_REVIEW</code> (skor komposit 0.70&ndash;0.85, lihat §8), dan 3 di antaranya jadi Golden Record.</td></tr><tr><td>4</td><td><b>NIB Typo</b></td><td>Satu digit NIB beda antar sistem</td><td>Tahap 2/3 — Standardisasi &amp; Secondary Matching via NPWP</td><td>Tahap 2: 492 NIB OSS (8.9%) &amp; 477 NIB CEISA (9.2%) di-standardisasi (pad/trim 13 digit).<br>Tahap 3: 225 pasangan ter-resolve via EXACT_NPWP (1 masuk Golden Record).</td></tr><tr><td>5</td><td><b>Sync Conflict</b></td><td>STATUS_NIB OSS = DICABUT, CEISA = AKTIF (atau sebaliknya)</td><td>Tahap 4 — Survivorship (IS_OUT_OF_SYNC)</td><td>176/5,273 record (3.34%) IS_OUT_OF_SYNC=True — semua di-resolve dengan STATUS_NIB OSS (latest-date-wins).</td></tr><tr><td>6</td><td><b>Logical Conflict</b></td><td>FLAG_EKSPOR=N tapi NIPER terisi di CEISA</td><td>Tahap 5 — Consistency Validation</td><td>Golden (after): 1,907/5,273 (36.17%) IS_LOGICAL_CONFLICT_NIPER=True (rule CONS-FLAG_EKSPOR-NIPER).<br>CEISA (before): 240/5,198 (4.6%) gagal rule CONS-KATEGORI-NIPER.</td></tr><tr><td>7</td><td><b>Orphan Records</b></td><td>Record hanya ada di OSS atau hanya di CEISA</td><td>Tahap 4 — Golden Record SOURCE tracking</td><td>SOURCE=OSS_ONLY: 692 record (13.1%); SOURCE=CEISA_ONLY: 248 record (4.7%). Total orphan 940 dari 5,273 Golden Record.</td></tr><tr><td>8</td><td><b>Missing Optional Field</b></td><td>KELURAHAN, KODE_POS, NOMOR_TELPON, dll kosong</td><td>Tahap 1/5 — Completeness Profiling</td><td>KELURAHAN: 15.0%; KODE_POS: 23.9%; NOMOR_TELPON: 13.1%; NAMA_SINGKATAN: 19.0%; NIPER: 37.7%; NOMOR_API: 41.9% (semua field opsional, dibiarkan kosong sesuai aturan §14).</td></tr><tr><td>9</td><td><b>Duplicate Entry</b></td><td>Satu perusahaan muncul 2x di sistem yang sama</td><td>Tahap 3 — Duplicate Clustering</td><td>689 cluster duplikat internal: 950 record OSS (rule UNIQ-NIB OSS n_fail=747) + 452 record CEISA.</td></tr><tr><td>10</td><td><b>Data Mart Snapshot Duplicate</b></td><td>NIB sama, &gt;1 baris CEISA dengan TGL_SYNC_OSS berbeda</td><td>Tahap 2 — Pre-matching Dedup (DEDUP_SNAPSHOT)</td><td>617 baris snapshot CEISA dibuang (11.87% dari raw CEISA), snapshot dengan TGL_SYNC_OSS terbaru dipertahankan.</td></tr></tbody></table></div>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s10.html">&larr; 10. Konflik & Risiko</a>
+    <a class="page-nav-btn next" href="s12.html">12. Pipeline E2E &rarr;</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17. Tahap 5 — Data Quality Monitoring (DQ Scorecard) — Laporan Akhir MDM DJBC — Single Importer & Exporter View</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/plotly.min.js"></script>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand"><b>MDM DJBC</b><div>Single Importer &amp; Exporter View — Kelompok 5</div></div>
+  
+  <div class="nav-group">Ringkasan</div>
+  
+  <a href="index.html" class="">Cover & KPI</a>
+  
+  
+  <div class="nav-group">Konteks Bisnis</div>
+  
+  <a href="s01.html" class="">1. Judul & Konteks</a>
+  
+  <a href="s02.html" class="">2. Latar Belakang</a>
+  
+  
+  <div class="nav-group">Sumber Data</div>
+  
+  <a href="s03.html" class="">3. OSS vs CEISA</a>
+  
+  <a href="s04.html" class="">4. Skema OSS</a>
+  
+  <a href="s05.html" class="">5. Skema CEISA</a>
+  
+  <a href="s06.html" class="">6. Pemetaan Kolom</a>
+  
+  
+  <div class="nav-group">Strategi & Aturan MDM</div>
+  
+  <a href="s07.html" class="">7. Dimensi DMBOK</a>
+  
+  <a href="s08.html" class="">8. Strategi Matching</a>
+  
+  <a href="s09.html" class="">9. Survivorship</a>
+  
+  <a href="s10.html" class="">10. Konflik & Risiko</a>
+  
+  <a href="s11.html" class="">11. Anomali Bisnis</a>
+  
+  
+  <div class="nav-group">Pipeline & Hasil</div>
+  
+  <a href="s12.html" class="">12. Pipeline E2E</a>
+  
+  <a href="s13.html" class="">13. Tahap 1 Profiling</a>
+  
+  <a href="s14.html" class="">14. Tahap 2 Cleansing</a>
+  
+  <a href="s15.html" class="">15. Tahap 3 Matching</a>
+  
+  <a href="s16.html" class="">16. Tahap 4 Golden Record</a>
+  
+  <a href="s17.html" class="active">17. Tahap 5 DQ Monitoring</a>
+  
+  <a href="s18.html" class="">18. Tahap 6 Profiling Dashboard</a>
+  
+  
+  <div class="nav-group">Insight & Penutup</div>
+  
+  <a href="s19.html" class="">19. Insight & Rekomendasi</a>
+  
+  <a href="s20.html" class="">20. Penutup & Deliverables</a>
+  
+  <a href="s21.html" class="">21. (Bonus) Integrasi API</a>
+  
+  <a href="s22.html" class="">22. Tata Kelola & Rekomendasi</a>
+  
+  
+  <div class="nav-group">Lampiran</div>
+  
+  <a href="appendix-dict.html" class="">A. Data Dictionary</a>
+  
+  <a href="appendix-rules.html" class="">B. Business Rules</a>
+  
+  <a href="appendix-overview.html" class="">C. Overview & Roadmap</a>
+  
+  <a href="appendix-data.html" class="">D. Data Viewer (CSV)</a>
+  
+  
+</nav>
+
+<main>
+  <section class="slide ">
+    <div class="slide-kicker">Pipeline &amp; Hasil per Tahap</div>
+    <h1>17. Tahap 5 — Data Quality Monitoring (DQ Scorecard)</h1>
+    <h2>17. Tahap 5 (DQ Monitoring) — Logika Bisnis Inti</h2>
+<p>Mengukur <strong>5 dimensi</strong> (4 dimensi dasar + Consistency) untuk <strong>3 dataset</strong>: OSS (before), CEISA (before), Golden Record (after).</p>
+<table>
+<thead>
+<tr>
+<th>Dimensi</th>
+<th>Definisi pada Project Ini</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Completeness</strong></td>
+<td>Field wajib (<code>NIB</code>, <code>NPWP</code>, <code>NAMA</code>, <code>STATUS_NIB</code>) tidak null</td>
+</tr>
+<tr>
+<td><strong>Validity</strong></td>
+<td>Format <code>NIB</code>, <code>NPWP</code>, <code>KODE_POS</code>, dan enum (<code>STATUS_NIB</code>, <code>KATEGORI</code>, <code>JENIS_PERSEROAN</code>) sesuai aturan</td>
+</tr>
+<tr>
+<td><strong>Uniqueness</strong></td>
+<td><code>NIB</code> unik tanpa duplikat exact — Golden Record dijamin unik per <code>NIB</code></td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td><code>FLAG_IMPOR</code> vs <code>JENIS_API</code>, <code>FLAG_EKSPOR</code> vs <code>NIPER</code>/<code>KATEGORI</code> konsisten; <code>STATUS_NIB</code> OSS = CEISA (diukur via <code>% IS_OUT_OF_SYNC</code>)</td>
+</tr>
+<tr>
+<td><strong>Timeliness</strong></td>
+<td><code>IS_STALE</code> (OSS) dan <code>HIGH_SYNC_LAG</code> (CEISA)</td>
+</tr>
+</tbody>
+</table>
+<p>Output <code>dq_scorecard.csv</code> menjadi <strong>bukti kuantitatif</strong> peningkatan kualitas data dari "before" (OSS/CEISA terpisah, banyak inkonsistensi) ke "after" (Golden Record, terkonsolidasi).</p>
+    <h2>📊 DQ Scorecard — OSS vs CEISA vs Golden Record</h2>
+    <div>                            <div id="5e0cff70-8150-4013-80e0-0b2677dc2cdf" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("5e0cff70-8150-4013-80e0-0b2677dc2cdf")) {                    Plotly.newPlot(                        "5e0cff70-8150-4013-80e0-0b2677dc2cdf",                        [{"marker":{"color":"#5C6BC0"},"name":"OSS (Before)","x":["Completeness","Validity","Uniqueness","Consistency","Timeliness","Akurasi (Accuracy)*"],"y":{"dtype":"f8","bdata":"AAAAAAAAWUBs37D2DctYQC+66KKLrlRAAAAAAAAAWUBKkKcEeUoyQAAAAAAAAFlA"},"type":"bar"},{"marker":{"color":"#26A69A"},"name":"CEISA (Before)","x":["Completeness","Validity","Uniqueness","Consistency","Timeliness","Akurasi (Accuracy)*"],"y":{"dtype":"f8","bdata":"AAAAAAAAWUDQKTVG6ftXQAAAAAAAAFlAOAk\u002fuLOwV0BeZEx1yY9BQAAAAAAAAFlA"},"type":"bar"},{"marker":{"color":"#2E7D32"},"name":"Golden Record (After)","x":["Completeness","Validity","Uniqueness","Consistency","Timeliness","Akurasi (Accuracy)*"],"y":{"dtype":"f8","bdata":"AAAAAAAAWUCAkhMm0pxYQAAAAAAAAFlAt5wESSA\u002fVkAZpKx8uGhAQAAAAAAAAFlA"},"type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"yaxis":{"title":{"text":"Skor (%)"},"range":[0,105]},"barmode":"group","title":{"text":"Skor Data Quality per Dimensi DMBOK: Before vs After (+ Akurasi*)"},"margin":{"l":40,"r":20,"t":50,"b":40},"font":{"family":"Segoe UI, sans-serif","size":12},"legend":{"orientation":"h","y":-0.18}},                        {"displaylogo": false, "responsive": true}                    )                };            </script>        </div>
+    <div class="table-wrap"><table class="dataframe dtable">
+  <thead>
+    <tr style="text-align: right;">
+      <th>dimension</th>
+      <th>oss_score</th>
+      <th>ceisa_score</th>
+      <th>golden_score</th>
+      <th>delta_vs_oss</th>
+      <th>delta_vs_ceisa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Completeness</td>
+      <td>100.00</td>
+      <td>100.00</td>
+      <td>100.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Validity</td>
+      <td>99.17</td>
+      <td>95.94</td>
+      <td>98.45</td>
+      <td>-0.72</td>
+      <td>2.51</td>
+    </tr>
+    <tr>
+      <td>Uniqueness</td>
+      <td>82.73</td>
+      <td>100.00</td>
+      <td>100.00</td>
+      <td>17.27</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Consistency</td>
+      <td>100.00</td>
+      <td>94.76</td>
+      <td>88.99</td>
+      <td>-11.01</td>
+      <td>-5.77</td>
+    </tr>
+    <tr>
+      <td>Timeliness</td>
+      <td>18.29</td>
+      <td>35.12</td>
+      <td>32.82</td>
+      <td>14.53</td>
+      <td>-2.31</td>
+    </tr>
+    <tr>
+      <td>Akurasi (Accuracy)*</td>
+      <td>100.00</td>
+      <td>100.00</td>
+      <td>100.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Overall</td>
+      <td>80.04</td>
+      <td>85.16</td>
+      <td>84.05</td>
+      <td>4.01</td>
+      <td>-1.11</td>
+    </tr>
+  </tbody>
+</table></div>
+    <div class="callout">
+      <p><b>Catatan atas DQ Scorecard di atas:</b></p>
+      <ul>
+        <li><b>* Akurasi (Accuracy)</b> adalah baris <b>placeholder</b> (nilai dummy 100 untuk OSS/CEISA/Golden, delta=0).
+        DMBOK mendefinisikan Akurasi sebagai kesesuaian data dengan <i>sumber kebenaran eksternal</i>
+        (mis. data resmi instansi terkait), yang tidak tersedia sebagai dataset rujukan dalam project ini —
+        lihat juga §7. Baris <b>"Overall"</b> tetap dihitung dari 5 dimensi nyata
+        (Completeness, Validity, Uniqueness, Consistency, Timeliness); Akurasi tidak memengaruhi skor Overall.</li>
+        <li><b>Mengapa skor Consistency Golden Record
+        (88.99) lebih rendah dari OSS
+        (100.00) / CEISA
+        (94.76)?</b>
+        Ini <b>bukan regresi kualitas</b>. Skor Consistency Golden adalah rata-rata dari <b>4 rule</b>, sedangkan
+        OSS dan CEISA masing-masing hanya dievaluasi dengan <b>1 rule</b>:
+          <ul>
+            <li>OSS &mdash; <code>CONS-FLAG_IMPOR-JENIS_API</code>: 100.00%</li>
+            <li>CEISA &mdash; <code>CONS-KATEGORI-NIPER</code>: 94.76%</li>
+            <li>Golden &mdash; <code>CONS-FLAG_IMPOR-JENIS_API</code>: 100.00%, <code>CONS-KATEGORI-NIPER</code>: 95.45%,
+            <code>CONS-STATUS_NIB-SYNC</code>: 96.66%, <code>CONS-FLAG_EKSPOR-NIPER</code>: 63.83%</li>
+          </ul>
+        Dua rule terakhir (<code>CONS-STATUS_NIB-SYNC</code> dan <code>CONS-FLAG_EKSPOR-NIPER</code>) adalah rule
+        <b>cross-source</b> yang baru bisa dihitung <i>setelah</i> OSS dan CEISA digabung menjadi Golden Record —
+        keduanya menjadi dasar flag <code>IS_OUT_OF_SYNC</code> dan <code>IS_LOGICAL_CONFLICT_NIPER</code>
+        (lihat anomali #6 &mdash; "Logical Conflict" di §11). Skor Consistency Golden yang lebih rendah berarti MDM
+        <b>berhasil mengungkap konflik antar-sumber</b> yang sebelumnya tersembunyi saat OSS dan CEISA dievaluasi
+        terpisah &mdash; ini justru salah satu nilai tambah utama proses MDM.</li>
+        <li><b>Mengapa masih ada 51 record Golden yang gagal <code>VAL-NPWP-FORMAT</code>
+        (dan 521 gagal
+        <code>VAL-NIB-DUMMY</code>)?</b>
+        Seluruh 51 kegagalan <code>VAL-NPWP-FORMAT</code> berasal dari record
+        <code>SOURCE='CEISA_ONLY'</code> (orphan, <code>NIB</code> dummy <code>'0000000000000'</code>) dengan nilai
+        NPWP yang <b>jumlah digitnya salah</b> (bukan sekadar kurang titik/strip), terdeteksi via flag
+        <code>IS_NPWP_INVALID</code> pada <code>ceisa_cleaned.csv</code>. Demikian pula, kegagalan
+        <code>VAL-NIB-DUMMY</code> didominasi oleh record OSS/CEISA bernilai <code>NIB</code> dummy yang tidak
+        memiliki pasangan match. Keduanya adalah <b>masalah data sumber</b> yang tidak bisa diperbaiki lewat
+        transformasi/standardisasi &mdash; perlu verifikasi ke sistem asal (terkait dengan keterbatasan Akurasi
+        di atas).</li>
+      </ul>
+    </div>
+    <h2>Quality Gate Report</h2>
+    <div class='table-wrap'><table class='dtable'><thead><tr><th>Dataset</th><th>Gate</th><th>Deskripsi</th><th>Nilai</th><th>Threshold</th><th>Status</th></tr></thead><tbody><tr><td>OSS</td><td><code>NIB_FORMAT</code></td><td>NIB 13 digit numerik</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>OSS</td><td><code>NPWP_FORMAT</code></td><td>NPWP_PERSEROAN format baku XX.XXX.XXX.X-XXX.XXX</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>OSS</td><td><code>STATUS_NIB_VALID</code></td><td>STATUS_NIB hanya nilai valid (AKTIF/DIBEKUKAN/DICABUT)</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>OSS</td><td><code>MANDATORY_COMPLETE</code></td><td>Field wajib (NIB/NPWP/NAMA/STATUS_NIB) terisi</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>OSS</td><td><code>DAERAH_VALID</code></td><td>PERSEROAN_DAERAH_ID terdaftar di referensi PROVINSI</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>NIB_FORMAT</code></td><td>NIB 13 digit numerik</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>NIB_UNIQUE</code></td><td>1 baris per NIB (data mart sudah dedup)</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>NPWP_FORMAT</code></td><td>NPWP format baku (anomali "Inconsistent NPWP" ditoleransi & ditandai IS_NPWP_INVALID)</td><td>81.5</td><td>75</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>STATUS_NIB_VALID</code></td><td>STATUS_NIB hanya nilai valid (AKTIF/DIBEKUKAN/DICABUT)</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>MANDATORY_COMPLETE</code></td><td>Field wajib (NIB/NPWP/NAMA/STATUS_NIB) terisi</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr><tr><td>CEISA</td><td><code>DAERAH_VALID</code></td><td>DAERAH_ID terdaftar di referensi PROVINSI</td><td>100.0</td><td>100</td><td><span class='badge status-pass'>PASS</span></td></tr></tbody></table></div>
+    <h2>DQ Rule Results — Golden Record</h2>
+    <div class='table-wrap'><table class='dtable'><thead><tr><th>Rule ID</th><th>Dimensi</th><th>Field</th><th>Deskripsi</th><th>Severity</th><th>Total</th><th>Pass</th><th>Fail</th><th>Pass Rate</th></tr></thead><tbody><tr><td><code>COMP-NIB</code></td><td>Completeness</td><td>NIB</td><td>NIB tidak boleh kosong</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>COMP-NPWP</code></td><td>Completeness</td><td>NPWP</td><td>NPWP tidak boleh kosong</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>COMP-NAMA</code></td><td>Completeness</td><td>NAMA</td><td>NAMA tidak boleh kosong</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>COMP-STATUS_NIB</code></td><td>Completeness</td><td>STATUS_NIB</td><td>STATUS_NIB tidak boleh kosong</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>VAL-NIB-FORMAT</code></td><td>Validity</td><td>NIB</td><td>NIB harus 13 digit numerik</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>VAL-NIB-DUMMY</code></td><td>Validity</td><td>NIB</td><td>NIB tidak boleh dummy "0000000000000"</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>4,752</td><td>521</td><td><span class='badge pr-warn'>90.12%</span></td></tr><tr><td><code>VAL-NPWP-FORMAT</code></td><td>Validity</td><td>NPWP</td><td>NPWP harus format XX.XXX.XXX.X-XXX.XXX</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,222</td><td>51</td><td><span class='badge pr-warn'>99.03%</span></td></tr><tr><td><code>VAL-KODE_POS-FORMAT</code></td><td>Validity</td><td>KODE_POS</td><td>KODE_POS (jika terisi) harus 5 digit</td><td><span class='badge sev-low'>LOW</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>VAL-STATUS_NIB-ENUM</code></td><td>Validity</td><td>STATUS_NIB</td><td>STATUS_NIB harus salah satu dari ['AKTIF', 'DIBEKUKAN', 'DICABUT']</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>VAL-JENIS_PERSEROAN-ENUM</code></td><td>Validity</td><td>JENIS_PERSEROAN</td><td>JENIS_PERSEROAN harus salah satu dari ['PT', 'CV', 'Firma', 'Perum', 'UD']</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>VAL-KATEGORI-ENUM</code></td><td>Validity</td><td>KATEGORI</td><td>KATEGORI harus salah satu dari ['IMPORTIR', 'EKSPORTIR', 'KEDUA-DUANYA']</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>UNIQ-NIB</code></td><td>Uniqueness</td><td>NIB</td><td>NIB unik (di luar NIB dummy - lihat tahap4 langkah 8)</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>CONS-FLAG_IMPOR-JENIS_API</code></td><td>Consistency</td><td>FLAG_IMPOR/JENIS_API</td><td>FLAG_IMPOR konsisten dengan pengisian JENIS_API</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>5,273</td><td>0</td><td><span class='badge pr-good'>100.00%</span></td></tr><tr><td><code>CONS-KATEGORI-NIPER</code></td><td>Consistency</td><td>KATEGORI/NIPER</td><td>KATEGORI konsisten dengan pengisian NIPER (anomali Logical Conflict)</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>5,033</td><td>240</td><td><span class='badge pr-warn'>95.45%</span></td></tr><tr><td><code>CONS-STATUS_NIB-SYNC</code></td><td>Consistency</td><td>IS_OUT_OF_SYNC</td><td>STATUS_NIB OSS & CEISA harus sinkron (anomali Sync Conflict)</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>5,097</td><td>176</td><td><span class='badge pr-warn'>96.66%</span></td></tr><tr><td><code>CONS-FLAG_EKSPOR-NIPER</code></td><td>Consistency</td><td>IS_LOGICAL_CONFLICT_NIPER</td><td>FLAG_EKSPOR konsisten dengan NIPER (anomali Logical Conflict)</td><td><span class='badge sev-high'>HIGH</span></td><td>5,273</td><td>3,366</td><td>1,907</td><td><span class='badge pr-bad'>63.83%</span></td></tr><tr><td><code>TIME-IS_STALE</code></td><td>Timeliness</td><td>IS_STALE</td><td>TGL_PERUBAHAN_NIB tidak boleh > 1 tahun (IS_STALE)</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>1,160</td><td>4,113</td><td><span class='badge pr-bad'>22.00%</span></td></tr><tr><td><code>TIME-HIGH_SYNC_LAG</code></td><td>Timeliness</td><td>HIGH_SYNC_LAG</td><td>TGL_SYNC_OSS tidak boleh > 30 hari (HIGH_SYNC_LAG)</td><td><span class='badge sev-medium'>MEDIUM</span></td><td>5,273</td><td>2,301</td><td>2,972</td><td><span class='badge pr-bad'>43.64%</span></td></tr></tbody></table></div>
+    
+  </section>
+  <div class="page-nav">
+    <a class="page-nav-btn prev" href="s16.html">&larr; 16. Tahap 4 Golden Record</a>
+    <a class="page-nav-btn next" href="s18.html">18. Tahap 6 Profiling Dashboard &rarr;</a>
+  </div>
+</main>
+</body>
+</html>
